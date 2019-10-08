@@ -206,6 +206,7 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Data\RoleNames.cs" />
@@ -313,6 +314,14 @@
     <ProjectReference Include="..\ChoreTracker.Data\ChoreTracker.Data.csproj">
       <Project>{D148D1E9-EDE2-43AE-A8DC-2BFE2AC82DE0}</Project>
       <Name>ChoreTracker.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ChoreTracker.Models\ChoreTracker.Models.csproj">
+      <Project>{EABE3D9D-F10E-4AEE-A286-219A5C329C63}</Project>
+      <Name>ChoreTracker.Models</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ChoreTracker.Services\ChoreTracker.Services.csproj">
+      <Project>{a2e77a3b-d12d-4ec9-87d1-99896b27521d}</Project>
+      <Name>ChoreTracker.Services</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
