@@ -20,6 +20,8 @@ namespace ChoreTracker.WebAPI.Models
 
         public string Email { get; set; }
 
+        public string Username { get; set; }
+
         public IEnumerable<UserLoginInfoViewModel> Logins { get; set; }
 
         public IEnumerable<ExternalLoginViewModel> ExternalLoginProviders { get; set; }
@@ -28,6 +30,8 @@ namespace ChoreTracker.WebAPI.Models
     public class UserInfoViewModel
     {
         public string Email { get; set; }
+
+        public string Username { get; set; }
 
         public bool HasRegistered { get; set; }
 

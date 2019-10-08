@@ -1,4 +1,7 @@
-﻿using System.Security.Claims;
+﻿using System.Data.Entity;
+using System.Data.Entity.ModelConfiguration;
+using System.Data.Entity.ModelConfiguration.Conventions;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -23,10 +26,38 @@ namespace ChoreTracker.Data
             : base("DefaultConnection", throwIfV1Schema: false)
         {
         }
-        
+
         public static ApplicationDbContext Create()
         {
             return new ApplicationDbContext();
+        }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder
+                .Conventions
+                .Remove<PluralizingTableNameConvention>();
+
+            modelBuilder
+                .Configurations
+                .Add(new IdentityUserLoginConfiguration())
+                .Add(new IdentityUserRoleConfiguartion());
+        }
+    }
+
+    public class IdentityUserLoginConfiguration : EntityTypeConfiguration<IdentityUserLogin>
+    {
+        public IdentityUserLoginConfiguration()
+        {
+            HasKey(iul => iul.UserId);
+        }
+    }
+
+    public class IdentityUserRoleConfiguartion : EntityTypeConfiguration<IdentityUserRole>
+    {
+        public IdentityUserRoleConfiguartion()
+        {
+            HasKey(iur => iur.UserId);
         }
     }
 }

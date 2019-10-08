@@ -21,7 +21,7 @@ namespace ChoreTracker.WebAPI.Models
         public string OldPassword { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 4)]
         [DataType(DataType.Password)]
         [Display(Name = "New password")]
         public string NewPassword { get; set; }
@@ -35,11 +35,16 @@ namespace ChoreTracker.WebAPI.Models
     public class RegisterBindingModel
     {
         [Required]
+        [Display(Name = "Username")]
+        public string Username { get; set; }
+
+        [Required]
         [Display(Name = "Email")]
+        [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 4)]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; }
@@ -55,6 +60,10 @@ namespace ChoreTracker.WebAPI.Models
         [Required]
         [Display(Name = "Email")]
         public string Email { get; set; }
+
+        [Required]
+        [Display(Name = "Username")]
+        public string Username { get; set; }
     }
 
     public class RemoveLoginBindingModel
