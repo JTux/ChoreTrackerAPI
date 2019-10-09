@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseService.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="GroupService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

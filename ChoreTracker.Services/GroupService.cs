@@ -2,6 +2,7 @@
 using ChoreTracker.Data.Entities;
 using ChoreTracker.Models.GroupMemberModels;
 using ChoreTracker.Models.GroupModels;
+using ChoreTracker.Models.ResponseModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ChoreTracker.Services
 {
-    public class GroupService
+    public class GroupService : BaseService
     {
         private readonly Guid _userId;
         public GroupService(Guid currentUserId)
@@ -49,7 +50,7 @@ namespace ChoreTracker.Services
             }
         }
 
-        public bool CreateGroup(GroupCreate model)
+        public RequestResponse CreateGroup(GroupCreate model)
         {
             var groupEntity = new GroupEntity
             {
@@ -64,11 +65,9 @@ namespace ChoreTracker.Services
                 ctx.Groups.Add(groupEntity);
 
                 if (ctx.SaveChanges() != 1)
-                    return false;
+                    return BadResponse("Could not create group");
 
                 var user = ctx.Users.FirstOrDefault(u => u.Id == _userId.ToString());
-                if (user == null)
-                    return false;
 
                 var memberEntity = new GroupMemberEntity
                 {
@@ -80,7 +79,10 @@ namespace ChoreTracker.Services
                 };
 
                 ctx.GroupMembers.Add(memberEntity);
-                return ctx.SaveChanges() == 1;
+                if (ctx.SaveChanges() != 1)
+                    return BadResponse("Could not create group member.");
+
+                return OkResponse("Group was created!");
             }
         }
     }

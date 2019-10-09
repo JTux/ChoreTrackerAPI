@@ -59,6 +59,7 @@
     <Compile Include="GroupModels\GroupCreate.cs" />
     <Compile Include="GroupModels\GroupListItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResponseModels\RequestResponse.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
