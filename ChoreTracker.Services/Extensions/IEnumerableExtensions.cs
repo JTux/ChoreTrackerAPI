@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ChoreTracker.Data.Entities;
+using ChoreTracker.Models.GroupMemberModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +10,11 @@ namespace ChoreTracker.Services.Extensions
 {
     public static class IEnumerableExtensions
     {
+        /// <summary>
+        /// Extension method that turns an IEnumerable of strings into a single string separated by spaces.
+        /// </summary>
+        /// <param name="enumerable">Given collection of strings that will be turned into a single continuous string.</param>
+        /// <returns>A single string that holds all of the original string values.</returns>
         public static string ToSingleString(this IEnumerable<string> enumerable)
         {
             if (enumerable.Count() == 1)
@@ -21,6 +28,28 @@ namespace ChoreTracker.Services.Extensions
             }
 
             return newString;
+        }
+
+        /// <summary>
+        /// Extension method that turns an IEnumerable of GroupMemberEntity objects into a List of GroupMemberDetail objects.
+        /// </summary>
+        /// <param name="members">Collection of GroupMemberEntities pulled from the database.</param>
+        /// <returns>A converted List of GroupMemberDetail from the given Entity collection.</returns>
+        public static List<GroupMemberDetail> ToGroupMemberDetailList(this IEnumerable<GroupMemberEntity> members)
+        {
+            var memberDetails = new List<GroupMemberDetail>();
+
+            foreach (var member in members)
+                memberDetails.Add(new GroupMemberDetail
+                {
+                    GroupMemberId = member.GroupMemberId,
+                    IsOfficer = member.IsOfficer,
+                    FirstName = member.User.FirstName,
+                    LastName = member.User.LastName,
+                    MemberNickName = member.MemberNickName
+                });
+
+            return memberDetails;
         }
     }
 }

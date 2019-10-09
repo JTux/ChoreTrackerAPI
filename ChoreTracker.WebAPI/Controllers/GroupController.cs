@@ -37,6 +37,18 @@ namespace ChoreTracker.WebAPI.Controllers
             return Ok(requestResponse.Message);
         }
 
+        [HttpGet]
+        public IHttpActionResult GetGroupInfo(int id)
+        {
+            var service = GetGroupService();
+
+            var group = service.GetGroupById(id);
+            if (group == null)
+                return BadRequest("Group not found.");
+
+            return Ok(group);
+        }
+
         private GroupService GetGroupService() => new GroupService(Guid.Parse(User.Identity.GetUserId()));
     }
 }

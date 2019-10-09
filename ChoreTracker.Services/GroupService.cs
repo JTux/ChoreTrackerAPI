@@ -3,6 +3,7 @@ using ChoreTracker.Data.Entities;
 using ChoreTracker.Models.GroupMemberModels;
 using ChoreTracker.Models.GroupModels;
 using ChoreTracker.Models.ResponseModels;
+using ChoreTracker.Services.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,30 +24,61 @@ namespace ChoreTracker.Services
         {
             using (var context = new ApplicationDbContext())
             {
-                var groupMembersQuery = context.GroupMembers.Where(gm => gm.UserId == _userId.ToString()).ToArray();
+                var groupsAsMember = context.GroupMembers.Where(gm => gm.UserId == _userId.ToString()).ToArray();
 
                 var groups = new List<GroupListItem>();
-                foreach (var groupMember in groupMembersQuery)
+                foreach (var membership in groupsAsMember)
                 {
                     var members = new List<GroupMemberDetail>();
 
-                    foreach (var member in groupMember.Group.GroupMembers)
+                    foreach (var member in membership.Group.GroupMembers)
                         members.Add(new GroupMemberDetail
                         {
                             GroupMemberId = member.GroupMemberId,
                             IsOfficer = member.IsOfficer,
-                            FirstName = member.FirstName,
-                            LastName = member.LastName,
+                            FirstName = member.User.FirstName,
+                            LastName = member.User.LastName,
                             MemberNickName =
                                 (string.IsNullOrEmpty(member.MemberNickName))
                                     ? member.MemberNickName
                                     : $"{member.User.FirstName} {member.User.LastName}"
                         });
 
-                    groups.Add(new GroupListItem { GroupName = groupMember.Group.GroupName, Members = members });
+                    groups.Add(
+                        new GroupListItem
+                        {
+                            GroupId = membership.GroupId,
+                            GroupName = membership.Group.GroupName,
+                            UserNickName = membership.MemberNickName,
+                            UserIsOfficer = membership.IsOfficer,
+                            Members = members
+                        });
                 }
 
                 return groups;
+            }
+        }
+
+        public GroupDetail GetGroupById(int id)
+        {
+            using (var context = new ApplicationDbContext())
+            {
+                if (!CheckUserGroupAccess(id, context))
+                    return null;
+
+                var group = context.Groups.Find(id);
+                var userGroupMember = group.GroupMembers.FirstOrDefault(m => m.UserId == _userId.ToString());
+
+                var groupDetail = new GroupDetail
+                {
+                    GroupId = group.GroupId,
+                    GroupName = group.GroupName,
+                    Members = group.GroupMembers.ToGroupMemberDetailList(),
+                    UserIsOfficer = userGroupMember.IsOfficer,
+                    UserNickName = userGroupMember.MemberNickName
+                };
+
+                return groupDetail;
             }
         }
 
@@ -73,8 +105,6 @@ namespace ChoreTracker.Services
                 {
                     GroupId = groupEntity.GroupId,
                     UserId = user.Id,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
                     IsOfficer = true
                 };
 
@@ -84,6 +114,20 @@ namespace ChoreTracker.Services
 
                 return OkResponse("Group was created!");
             }
+        }
+
+        /// <summary>
+        /// Takes in a group Id and an existing ApplicationDbContext to check if the user is in the corresponding group
+        /// </summary>
+        /// <param name="groupId">Id of the expected group.</param>
+        /// <param name="context">Existing ApplicationDbContext given as to avoid creating multiple instances.</param>
+        /// <returns></returns>
+        private bool CheckUserGroupAccess(int groupId, ApplicationDbContext context)
+        {
+            var groupMember =
+                    context.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString() && gm.GroupId == groupId);
+
+            return groupMember != null ? true : false;
         }
     }
 }

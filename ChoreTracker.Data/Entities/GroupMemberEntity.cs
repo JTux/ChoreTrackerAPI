@@ -18,8 +18,6 @@ namespace ChoreTracker.Data.Entities
         [DefaultValue(false)]
         public bool IsOfficer { get; set; }
 
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
         public string MemberNickName { get; set; }
 
         [ForeignKey(nameof(User))]

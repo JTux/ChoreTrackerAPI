@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace ChoreTracker.Models.GroupModels
 {
-    public class GroupListItem
+    public class GroupDetail
     {
         public int GroupId { get; set; }
         public string GroupName { get; set; }
-        public string UserNickName { get; set; }
         public bool UserIsOfficer { get; set; }
+        public string UserNickName { get; set; }
         public List<GroupMemberDetail> Members { get; set; }
     }
 }
