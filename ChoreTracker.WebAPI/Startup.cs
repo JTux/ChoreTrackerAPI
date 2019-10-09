@@ -35,7 +35,9 @@ namespace ChoreTracker.WebAPI
                 var adminUser = new ApplicationUser()
                 {
                     UserName = "admin",
-                    Email = "admin@example.com"
+                    Email = "admin@example.com",
+                    FirstName = "Mr.",
+                    LastName = "Admin"
                 };
 
                 var adminPassword = "password";

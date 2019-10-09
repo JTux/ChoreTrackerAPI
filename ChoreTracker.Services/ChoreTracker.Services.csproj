@@ -55,11 +55,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
+    <Compile Include="GroupService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ChoreTracker.Data\ChoreTracker.Data.csproj">
+      <Project>{d148d1e9-ede2-43ae-a8dc-2bfe2ac82de0}</Project>
+      <Name>ChoreTracker.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ChoreTracker.Models\ChoreTracker.Models.csproj">
+      <Project>{eabe3d9d-f10e-4aee-a286-219a5c329c63}</Project>
+      <Name>ChoreTracker.Models</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

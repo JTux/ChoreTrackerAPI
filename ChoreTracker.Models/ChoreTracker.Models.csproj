@@ -55,6 +55,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdminModels\UserInfo.cs" />
+    <Compile Include="GroupMemberModels\GroupMemberDetail.cs" />
+    <Compile Include="GroupModels\GroupCreate.cs" />
+    <Compile Include="GroupModels\GroupListItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

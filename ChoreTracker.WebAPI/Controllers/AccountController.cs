@@ -80,7 +80,7 @@ namespace ChoreTracker.WebAPI.Controllers
         [Route("ManageInfo")]
         public async Task<ManageInfoViewModel> GetManageInfo(string returnUrl, bool generateState = false)
         {
-            IdentityUser user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+            ApplicationUser user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
 
             if (user == null)
             {
@@ -110,6 +110,8 @@ namespace ChoreTracker.WebAPI.Controllers
             return new ManageInfoViewModel
             {
                 LocalLoginProvider = LocalLoginProvider,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
                 Email = user.UserName,
                 Logins = logins,
                 ExternalLoginProviders = GetExternalLogins(returnUrl, generateState)
@@ -330,7 +332,13 @@ namespace ChoreTracker.WebAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = new ApplicationUser() { UserName = model.Username, Email = model.Email };
+            var user = new ApplicationUser()
+            {
+                UserName = model.Username,
+                Email = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName
+            };
 
             IdentityResult result = await UserManager.CreateAsync(user, model.Password);
 

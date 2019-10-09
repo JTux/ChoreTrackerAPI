@@ -1,5 +1,7 @@
 ﻿using ChoreTracker.Data;
 using ChoreTracker.Models.AdminModels;
+using ChoreTracker.Models.GroupModels;
+using ChoreTracker.Services;
 using ChoreTracker.Services.Extensions;
 using ChoreTracker.WebAPI.Data;
 using ChoreTracker.WebAPI.Models;
@@ -26,7 +28,13 @@ namespace ChoreTracker.WebAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var newAdmin = new ApplicationUser() { UserName = model.Username, Email = model.Email };
+            var newAdmin = new ApplicationUser()
+            {
+                UserName = model.Username,
+                Email = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName
+            };
 
             var userManager = Request.GetOwinContext().GetUserManager<ApplicationUserManager>();
 
