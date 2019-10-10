@@ -1,4 +1,5 @@
 ﻿using ChoreTracker.Models.GroupModels;
+using ChoreTracker.Models.ResponseModels;
 using ChoreTracker.Services;
 using Microsoft.AspNet.Identity;
 using System;
@@ -63,6 +64,35 @@ namespace ChoreTracker.WebAPI.Controllers
             return Ok(groupJoinResponse.Message);
         }
 
+        [HttpPut]
+        [Route("M/{id}/Accept")]
+        public IHttpActionResult AcceptApplicant(int id)
+        {
+            var service = GetMemberService();
+
+            RequestResponse applicantAcceptResponse = service.AcceptApplicant(id);
+
+            if (!applicantAcceptResponse.Succeeded)
+                return InternalServerError(new Exception(applicantAcceptResponse.Message));
+
+            return Ok(applicantAcceptResponse.Message);
+        }
+
+        [HttpPut]
+        [Route("M/{id}/Decline")]
+        public IHttpActionResult DeclineApplicant(int id)
+        {
+            var service = GetMemberService();
+
+            RequestResponse applicantDeclineResponse = service.DeclineApplicant(id);
+
+            if (!applicantDeclineResponse.Succeeded)
+                return InternalServerError(new Exception(applicantDeclineResponse.Message));
+
+            return Ok(applicantDeclineResponse.Message);
+        }
+
         private GroupService GetGroupService() => new GroupService(Guid.Parse(User.Identity.GetUserId()));
+        private GroupMemberService GetMemberService() => new GroupMemberService(Guid.Parse(User.Identity.GetUserId()));
     }
 }

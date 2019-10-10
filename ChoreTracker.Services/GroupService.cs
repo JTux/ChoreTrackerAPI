@@ -71,6 +71,7 @@ namespace ChoreTracker.Services
                         {
                             GroupId = membership.GroupId,
                             GroupName = membership.Group.GroupName,
+                            GroupInviteCode = membership.Group.GroupInviteCode,
                             UserNickName = membership.MemberNickName,
                             UserIsOfficer = membership.IsOfficer,
                             Members = members,
@@ -96,6 +97,7 @@ namespace ChoreTracker.Services
                 {
                     GroupId = group.GroupId,
                     GroupName = group.GroupName,
+                    GroupInviteCode = group.GroupInviteCode,
                     Members = group.GroupMembers.ToGroupMemberDetailList(),
                     UserIsOfficer = userGroupMember.IsOfficer,
                     UserNickName = userGroupMember.MemberNickName

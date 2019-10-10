@@ -56,6 +56,7 @@
   <ItemGroup>
     <Compile Include="BaseService.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
+    <Compile Include="GroupMemberService.cs" />
     <Compile Include="GroupService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
