@@ -14,5 +14,6 @@ namespace ChoreTracker.Models.GroupModels
         public string UserNickName { get; set; }
         public bool UserIsOfficer { get; set; }
         public List<GroupMemberDetail> Members { get; set; }
+        public List<GroupMemberDetail> Applicants { get; set; }
     }
 }

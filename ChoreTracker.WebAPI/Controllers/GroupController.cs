@@ -49,6 +49,20 @@ namespace ChoreTracker.WebAPI.Controllers
             return Ok(group);
         }
 
+        [HttpPost]
+        [Route("Join/{key}")]
+        public IHttpActionResult JoinGroupAsMember(string key)
+        {
+            var service = GetGroupService();
+
+            var groupJoinResponse = service.JoinGroup(key);
+
+            if (!groupJoinResponse.Succeeded)
+                return InternalServerError(new Exception(groupJoinResponse.Message));
+
+            return Ok(groupJoinResponse.Message);
+        }
+
         private GroupService GetGroupService() => new GroupService(Guid.Parse(User.Identity.GetUserId()));
     }
 }

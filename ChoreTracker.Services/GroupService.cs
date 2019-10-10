@@ -29,9 +29,13 @@ namespace ChoreTracker.Services
                 var groups = new List<GroupListItem>();
                 foreach (var membership in groupsAsMember)
                 {
-                    var members = new List<GroupMemberDetail>();
+                    if (!membership.IsAccepted)
+                        continue;
 
-                    foreach (var member in membership.Group.GroupMembers)
+                    var members = new List<GroupMemberDetail>();
+                    var applicants = new List<GroupMemberDetail>();
+
+                    foreach (var member in membership.Group.GroupMembers.Where(m => m.IsAccepted))
                         members.Add(new GroupMemberDetail
                         {
                             GroupMemberId = member.GroupMemberId,
@@ -39,10 +43,28 @@ namespace ChoreTracker.Services
                             FirstName = member.User.FirstName,
                             LastName = member.User.LastName,
                             MemberNickName =
-                                (string.IsNullOrEmpty(member.MemberNickName))
+                                (!string.IsNullOrEmpty(member.MemberNickName))
                                     ? member.MemberNickName
                                     : $"{member.User.FirstName} {member.User.LastName}"
                         });
+
+                    if (membership.IsOfficer)
+                    {
+                        foreach (var applicant in membership.Group.GroupMembers.Where(m => !m.IsAccepted))
+                        {
+                            applicants.Add(new GroupMemberDetail
+                            {
+                                GroupMemberId = applicant.GroupMemberId,
+                                IsOfficer = applicant.IsOfficer,
+                                FirstName = applicant.User.FirstName,
+                                LastName = applicant.User.LastName,
+                                MemberNickName =
+                                    (!string.IsNullOrEmpty(applicant.MemberNickName))
+                                        ? applicant.MemberNickName
+                                        : $"{applicant.User.FirstName} {applicant.User.LastName}"
+                            });
+                        }
+                    }
 
                     groups.Add(
                         new GroupListItem
@@ -51,7 +73,8 @@ namespace ChoreTracker.Services
                             GroupName = membership.Group.GroupName,
                             UserNickName = membership.MemberNickName,
                             UserIsOfficer = membership.IsOfficer,
-                            Members = members
+                            Members = members,
+                            Applicants = applicants
                         });
                 }
 
@@ -99,20 +122,51 @@ namespace ChoreTracker.Services
                 if (ctx.SaveChanges() != 1)
                     return BadResponse("Could not create group");
 
-                var user = ctx.Users.FirstOrDefault(u => u.Id == _userId.ToString());
-
                 var memberEntity = new GroupMemberEntity
                 {
                     GroupId = groupEntity.GroupId,
-                    UserId = user.Id,
-                    IsOfficer = true
+                    UserId = _userId.ToString(),
+                    IsOfficer = true,
+                    IsAccepted = true
                 };
 
                 ctx.GroupMembers.Add(memberEntity);
                 if (ctx.SaveChanges() != 1)
                     return BadResponse("Could not create group member.");
 
+                string[] x = new string[] { "Hey", "There", "bud" };
+                x.ToSingleString();
+
                 return OkResponse("Group was created!");
+            }
+        }
+
+        public RequestResponse JoinGroup(string groupKey)
+        {
+            using (var context = new ApplicationDbContext())
+            {
+                var groupEntity = context.Groups.FirstOrDefault(g => g.GroupInviteCode == groupKey);
+
+                if (groupEntity == null)
+                    return BadResponse("Invalid code.");
+
+                if (CheckUserGroupAccess(groupEntity.GroupId, context))
+                    return BadResponse("Already in group.");
+
+                var memberEntity = new GroupMemberEntity
+                {
+                    GroupId = groupEntity.GroupId,
+                    UserId = _userId.ToString(),
+                    IsOfficer = false,
+                    IsAccepted = false
+                };
+
+                context.GroupMembers.Add(memberEntity);
+
+                if (context.SaveChanges() != 1)
+                    return BadResponse("Could not join group.");
+
+                return OkResponse("Joined group successfully.");
             }
         }
 

@@ -16,6 +16,10 @@ namespace ChoreTracker.Data.Entities
 
         [Required]
         [DefaultValue(false)]
+        public bool IsAccepted { get; set; }
+
+        [Required]
+        [DefaultValue(false)]
         public bool IsOfficer { get; set; }
 
         public string MemberNickName { get; set; }
