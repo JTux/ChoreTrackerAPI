@@ -11,54 +11,69 @@ namespace ChoreTracker.Services
     public class GroupMemberService : BaseService
     {
         private Guid _userId;
+        private readonly ApplicationDbContext _context;
 
         public GroupMemberService(Guid userId)
         {
             _userId = userId;
+            _context = new ApplicationDbContext();
         }
 
         public RequestResponse AcceptApplicant(int applicantId)
         {
-            using (var context = new ApplicationDbContext())
-            {
-                var applicant = context.GroupMembers.Find(applicantId);
-                if (applicant == null)
-                    return BadResponse("Applicant does not exist.");
+            var applicant = _context.GroupMembers.Find(applicantId);
+            if (applicant == null)
+                return BadResponse("Applicant does not exist.");
 
-                if (!UserIsOfficer(applicant.GroupId, context))
-                    return BadResponse("Invalid permissions.");
+            if (!UserIsOfficer(applicant.GroupId))
+                return BadResponse("Invalid permissions.");
 
-                applicant.IsAccepted = true;
-                if (context.SaveChanges() != 1)
-                    return BadResponse("Could not accept applicant.");
+            applicant.IsAccepted = true;
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Could not accept applicant.");
 
-                return OkResponse("Member successfully added.");
-            }
+            return OkResponse("Member successfully added.");
         }
 
         public RequestResponse DeclineApplicant(int applicantId)
         {
-            using (var context = new ApplicationDbContext())
-            {
-                var applicant = context.GroupMembers.Find(applicantId);
-                if (applicant == null || applicant.IsAccepted)
-                    return BadResponse("Applicant does not exist.");
+            var applicant = _context.GroupMembers.Find(applicantId);
+            if (applicant == null || applicant.IsAccepted)
+                return BadResponse("Applicant does not exist.");
 
-                if (!UserIsOfficer(applicant.GroupId, context))
-                    return BadResponse("Invalid permissions.");
+            if (!UserIsOfficer(applicant.GroupId))
+                return BadResponse("Invalid permissions.");
 
-                context.GroupMembers.Remove(applicant);
-                if (context.SaveChanges() != 1)
-                    return BadResponse("Could not remove applicant.");
+            _context.GroupMembers.Remove(applicant);
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Could not remove applicant.");
 
-                return OkResponse("Applicant successfully removed.");
-            }
+            return OkResponse("Applicant successfully removed.");
         }
 
-        private bool UserIsOfficer(int groupId, ApplicationDbContext context)
+        public RequestResponse RemoveMember(int memberId)
+        {
+            var member = _context.GroupMembers.Find(memberId);
+            if (member == null || !member.IsAccepted)
+                return BadResponse("Member does not exist");
+
+            var userMembership =
+                _context.GroupMembers.FirstOrDefault(m => m.UserId == _userId.ToString() && m.GroupId == member.GroupId);
+
+            if ((member.IsOfficer && userMembership.Group.OwnerId != _userId) || !UserIsOfficer(member.GroupId))
+                return BadResponse("Insufficient permissions.");
+
+            _context.GroupMembers.Remove(member);
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Could not remove member.");
+
+            return OkResponse("Member successfully removed.");
+        }
+
+        private bool UserIsOfficer(int groupId)
         {
             var userMembership =
-                    context.GroupMembers.FirstOrDefault(m => m.UserId == _userId.ToString() && m.GroupId == groupId);
+                    _context.GroupMembers.FirstOrDefault(m => m.UserId == _userId.ToString() && m.GroupId == groupId);
 
             if (userMembership == null)
                 return false;

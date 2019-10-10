@@ -70,7 +70,7 @@ namespace ChoreTracker.WebAPI.Controllers
         {
             var service = GetMemberService();
 
-            RequestResponse applicantAcceptResponse = service.AcceptApplicant(id);
+            var applicantAcceptResponse = service.AcceptApplicant(id);
 
             if (!applicantAcceptResponse.Succeeded)
                 return InternalServerError(new Exception(applicantAcceptResponse.Message));
@@ -84,12 +84,26 @@ namespace ChoreTracker.WebAPI.Controllers
         {
             var service = GetMemberService();
 
-            RequestResponse applicantDeclineResponse = service.DeclineApplicant(id);
+            var applicantDeclineResponse = service.DeclineApplicant(id);
 
             if (!applicantDeclineResponse.Succeeded)
                 return InternalServerError(new Exception(applicantDeclineResponse.Message));
 
             return Ok(applicantDeclineResponse.Message);
+        }
+
+        [HttpDelete]
+        [Route("M/Remove/{id}")]
+        public IHttpActionResult RemoveMember(int id)
+        {
+            var service = GetMemberService();
+
+            var removalResponse = service.RemoveMember(id);
+
+            if (!removalResponse.Succeeded)
+                return InternalServerError(new Exception(removalResponse.Message));
+
+            return Ok(removalResponse.Message);
         }
 
         private GroupService GetGroupService() => new GroupService(Guid.Parse(User.Identity.GetUserId()));

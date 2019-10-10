@@ -15,96 +15,92 @@ namespace ChoreTracker.Services
     public class GroupService : BaseService
     {
         private readonly Guid _userId;
+        private readonly ApplicationDbContext _context;
         public GroupService(Guid currentUserId)
         {
             _userId = currentUserId;
+            _context = new ApplicationDbContext();
         }
 
         public IEnumerable<GroupListItem> GetAvailableGroups()
         {
-            using (var context = new ApplicationDbContext())
+            var groupsAsMember = _context.GroupMembers.Where(gm => gm.UserId == _userId.ToString()).ToArray();
+
+            var groups = new List<GroupListItem>();
+            foreach (var membership in groupsAsMember)
             {
-                var groupsAsMember = context.GroupMembers.Where(gm => gm.UserId == _userId.ToString()).ToArray();
+                if (!membership.IsAccepted)
+                    continue;
 
-                var groups = new List<GroupListItem>();
-                foreach (var membership in groupsAsMember)
-                {
-                    if (!membership.IsAccepted)
-                        continue;
+                var members = new List<GroupMemberDetail>();
+                var applicants = new List<GroupMemberDetail>();
 
-                    var members = new List<GroupMemberDetail>();
-                    var applicants = new List<GroupMemberDetail>();
-
-                    foreach (var member in membership.Group.GroupMembers.Where(m => m.IsAccepted))
-                        members.Add(new GroupMemberDetail
-                        {
-                            GroupMemberId = member.GroupMemberId,
-                            IsOfficer = member.IsOfficer,
-                            FirstName = member.User.FirstName,
-                            LastName = member.User.LastName,
-                            MemberNickName =
-                                (!string.IsNullOrEmpty(member.MemberNickName))
-                                    ? member.MemberNickName
-                                    : $"{member.User.FirstName} {member.User.LastName}"
-                        });
-
-                    if (membership.IsOfficer)
+                foreach (var member in membership.Group.GroupMembers.Where(m => m.IsAccepted))
+                    members.Add(new GroupMemberDetail
                     {
-                        foreach (var applicant in membership.Group.GroupMembers.Where(m => !m.IsAccepted))
-                        {
-                            applicants.Add(new GroupMemberDetail
-                            {
-                                GroupMemberId = applicant.GroupMemberId,
-                                IsOfficer = applicant.IsOfficer,
-                                FirstName = applicant.User.FirstName,
-                                LastName = applicant.User.LastName,
-                                MemberNickName =
-                                    (!string.IsNullOrEmpty(applicant.MemberNickName))
-                                        ? applicant.MemberNickName
-                                        : $"{applicant.User.FirstName} {applicant.User.LastName}"
-                            });
-                        }
-                    }
+                        GroupMemberId = member.GroupMemberId,
+                        IsOfficer = member.IsOfficer,
+                        FirstName = member.User.FirstName,
+                        LastName = member.User.LastName,
+                        MemberNickName =
+                            (!string.IsNullOrEmpty(member.MemberNickName))
+                                ? member.MemberNickName
+                                : $"{member.User.FirstName} {member.User.LastName}"
+                    });
 
-                    groups.Add(
-                        new GroupListItem
+                if (membership.IsOfficer)
+                {
+                    foreach (var applicant in membership.Group.GroupMembers.Where(m => !m.IsAccepted))
+                    {
+                        applicants.Add(new GroupMemberDetail
                         {
-                            GroupId = membership.GroupId,
-                            GroupName = membership.Group.GroupName,
-                            GroupInviteCode = membership.Group.GroupInviteCode,
-                            UserNickName = membership.MemberNickName,
-                            UserIsOfficer = membership.IsOfficer,
-                            Members = members,
-                            Applicants = applicants
+                            GroupMemberId = applicant.GroupMemberId,
+                            IsOfficer = applicant.IsOfficer,
+                            FirstName = applicant.User.FirstName,
+                            LastName = applicant.User.LastName,
+                            MemberNickName =
+                                (!string.IsNullOrEmpty(applicant.MemberNickName))
+                                    ? applicant.MemberNickName
+                                    : $"{applicant.User.FirstName} {applicant.User.LastName}"
                         });
+                    }
                 }
 
-                return groups;
+                groups.Add(
+                    new GroupListItem
+                    {
+                        GroupId = membership.GroupId,
+                        GroupName = membership.Group.GroupName,
+                        GroupInviteCode = membership.Group.GroupInviteCode,
+                        UserNickName = membership.MemberNickName,
+                        UserIsOfficer = membership.IsOfficer,
+                        Members = members,
+                        Applicants = applicants
+                    });
             }
+
+            return groups;
         }
 
         public GroupDetail GetGroupById(int id)
         {
-            using (var context = new ApplicationDbContext())
+            if (!CheckUserGroupAccess(id))
+                return null;
+
+            var group = _context.Groups.Find(id);
+            var userGroupMember = group.GroupMembers.FirstOrDefault(m => m.UserId == _userId.ToString());
+
+            var groupDetail = new GroupDetail
             {
-                if (!CheckUserGroupAccess(id, context))
-                    return null;
+                GroupId = group.GroupId,
+                GroupName = group.GroupName,
+                GroupInviteCode = group.GroupInviteCode,
+                Members = group.GroupMembers.ToGroupMemberDetailList(),
+                UserIsOfficer = userGroupMember.IsOfficer,
+                UserNickName = userGroupMember.MemberNickName
+            };
 
-                var group = context.Groups.Find(id);
-                var userGroupMember = group.GroupMembers.FirstOrDefault(m => m.UserId == _userId.ToString());
-
-                var groupDetail = new GroupDetail
-                {
-                    GroupId = group.GroupId,
-                    GroupName = group.GroupName,
-                    GroupInviteCode = group.GroupInviteCode,
-                    Members = group.GroupMembers.ToGroupMemberDetailList(),
-                    UserIsOfficer = userGroupMember.IsOfficer,
-                    UserNickName = userGroupMember.MemberNickName
-                };
-
-                return groupDetail;
-            }
+            return groupDetail;
         }
 
         public RequestResponse CreateGroup(GroupCreate model)
@@ -117,71 +113,64 @@ namespace ChoreTracker.Services
                 GroupInviteCode = "Ayy"
             };
 
-            using (var ctx = new ApplicationDbContext())
+            _context.Groups.Add(groupEntity);
+
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Could not create group");
+
+            var memberEntity = new GroupMemberEntity
             {
-                ctx.Groups.Add(groupEntity);
+                GroupId = groupEntity.GroupId,
+                UserId = _userId.ToString(),
+                IsOfficer = true,
+                IsAccepted = true
+            };
 
-                if (ctx.SaveChanges() != 1)
-                    return BadResponse("Could not create group");
+            _context.GroupMembers.Add(memberEntity);
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Could not create group member.");
 
-                var memberEntity = new GroupMemberEntity
-                {
-                    GroupId = groupEntity.GroupId,
-                    UserId = _userId.ToString(),
-                    IsOfficer = true,
-                    IsAccepted = true
-                };
+            string[] x = new string[] { "Hey", "There", "bud" };
+            x.ToSingleString();
 
-                ctx.GroupMembers.Add(memberEntity);
-                if (ctx.SaveChanges() != 1)
-                    return BadResponse("Could not create group member.");
-
-                string[] x = new string[] { "Hey", "There", "bud" };
-                x.ToSingleString();
-
-                return OkResponse("Group was created!");
-            }
+            return OkResponse("Group was created!");
         }
 
         public RequestResponse JoinGroup(string groupKey)
         {
-            using (var context = new ApplicationDbContext())
+            var groupEntity = _context.Groups.FirstOrDefault(g => g.GroupInviteCode == groupKey);
+
+            if (groupEntity == null)
+                return BadResponse("Invalid code.");
+
+            if (CheckUserGroupAccess(groupEntity.GroupId))
+                return BadResponse("Already in group.");
+
+            var memberEntity = new GroupMemberEntity
             {
-                var groupEntity = context.Groups.FirstOrDefault(g => g.GroupInviteCode == groupKey);
+                GroupId = groupEntity.GroupId,
+                UserId = _userId.ToString(),
+                IsOfficer = false,
+                IsAccepted = false
+            };
 
-                if (groupEntity == null)
-                    return BadResponse("Invalid code.");
+            _context.GroupMembers.Add(memberEntity);
 
-                if (CheckUserGroupAccess(groupEntity.GroupId, context))
-                    return BadResponse("Already in group.");
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Could not join group.");
 
-                var memberEntity = new GroupMemberEntity
-                {
-                    GroupId = groupEntity.GroupId,
-                    UserId = _userId.ToString(),
-                    IsOfficer = false,
-                    IsAccepted = false
-                };
-
-                context.GroupMembers.Add(memberEntity);
-
-                if (context.SaveChanges() != 1)
-                    return BadResponse("Could not join group.");
-
-                return OkResponse("Joined group successfully.");
-            }
+            return OkResponse("Joined group successfully.");
         }
 
         /// <summary>
-        /// Takes in a group Id and an existing ApplicationDbContext to check if the user is in the corresponding group
+        /// Takes in a group Id to check if the user is in the corresponding group
         /// </summary>
         /// <param name="groupId">Id of the expected group.</param>
-        /// <param name="context">Existing ApplicationDbContext given as to avoid creating multiple instances.</param>
         /// <returns></returns>
-        private bool CheckUserGroupAccess(int groupId, ApplicationDbContext context)
+        private bool CheckUserGroupAccess(int groupId)
         {
             var groupMember =
-                    context.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString() && gm.GroupId == groupId);
+                    _context.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString() && gm.GroupId == groupId);
 
             return groupMember != null ? true : false;
         }
