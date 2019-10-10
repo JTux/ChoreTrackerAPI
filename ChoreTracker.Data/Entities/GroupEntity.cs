@@ -9,6 +9,15 @@ namespace ChoreTracker.Data.Entities
 {
     public class GroupEntity
     {
+        public GroupEntity() { }
+        public GroupEntity(string groupName, Guid userId, string inviteCode)
+        {
+            GroupName = groupName;
+            OwnerId = userId;
+            GroupInviteCode = inviteCode;
+            DateFounded = DateTimeOffset.Now;
+        }
+
         [Key]
         public int GroupId { get; set; }
 

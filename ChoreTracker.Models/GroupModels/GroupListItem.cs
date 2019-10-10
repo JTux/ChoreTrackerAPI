@@ -9,6 +9,18 @@ namespace ChoreTracker.Models.GroupModels
 {
     public class GroupListItem
     {
+        public GroupListItem() { }
+        public GroupListItem(int groupId, string groupName, string inviteCode, string nickName, bool userIsOfficer, List<GroupMemberDetail> members, List<GroupMemberDetail> applicants)
+        {
+            GroupId = groupId;
+            GroupName = groupName;
+            GroupInviteCode = inviteCode;
+            UserNickName = nickName;
+            UserIsOfficer = userIsOfficer;
+            Members = members;
+            Applicants = applicants;
+        }
+
         public int GroupId { get; set; }
         public string GroupName { get; set; }
         public string GroupInviteCode { get; set; }

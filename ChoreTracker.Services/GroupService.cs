@@ -32,54 +32,56 @@ namespace ChoreTracker.Services
                 if (!membership.IsAccepted)
                     continue;
 
-                var members = new List<GroupMemberDetail>();
+                var members = GetMemberDetailList(membership.Group.GroupMembers.Where(m => m.IsAccepted));
+
                 var applicants = new List<GroupMemberDetail>();
-
-                foreach (var member in membership.Group.GroupMembers.Where(m => m.IsAccepted))
-                    members.Add(new GroupMemberDetail
-                    {
-                        GroupMemberId = member.GroupMemberId,
-                        IsOfficer = member.IsOfficer,
-                        FirstName = member.User.FirstName,
-                        LastName = member.User.LastName,
-                        MemberNickName =
-                            (!string.IsNullOrEmpty(member.MemberNickName))
-                                ? member.MemberNickName
-                                : $"{member.User.FirstName} {member.User.LastName}"
-                    });
-
                 if (membership.IsOfficer)
-                {
-                    foreach (var applicant in membership.Group.GroupMembers.Where(m => !m.IsAccepted))
-                    {
-                        applicants.Add(new GroupMemberDetail
-                        {
-                            GroupMemberId = applicant.GroupMemberId,
-                            IsOfficer = applicant.IsOfficer,
-                            FirstName = applicant.User.FirstName,
-                            LastName = applicant.User.LastName,
-                            MemberNickName =
-                                (!string.IsNullOrEmpty(applicant.MemberNickName))
-                                    ? applicant.MemberNickName
-                                    : $"{applicant.User.FirstName} {applicant.User.LastName}"
-                        });
-                    }
-                }
+                    applicants = GetMemberDetailList(membership.Group.GroupMembers.Where(m => !m.IsAccepted));
 
-                groups.Add(
-                    new GroupListItem
-                    {
-                        GroupId = membership.GroupId,
-                        GroupName = membership.Group.GroupName,
-                        GroupInviteCode = membership.Group.GroupInviteCode,
-                        UserNickName = membership.MemberNickName,
-                        UserIsOfficer = membership.IsOfficer,
-                        Members = members,
-                        Applicants = applicants
-                    });
+                groups.Add(new GroupListItem(membership.GroupId, membership.Group.GroupName, membership.Group.GroupInviteCode, membership.MemberNickName, membership.IsOfficer, members, applicants));
             }
 
             return groups;
+        }
+
+        private List<GroupMemberDetail> GetMemberDetailList(IEnumerable<GroupMemberEntity> entities)
+        {
+            var memberDetails = new List<GroupMemberDetail>();
+            foreach (var entity in entities)
+            {
+                var nickName = (!string.IsNullOrEmpty(entity.MemberNickName))
+                                ? entity.MemberNickName
+                                : $"{entity.User.FirstName} {entity.User.LastName}";
+
+                memberDetails.Add(new GroupMemberDetail(entity.GroupMemberId, entity.IsOfficer, nickName, entity.User.FirstName, entity.User.LastName));
+            }
+            return memberDetails;
+        }
+
+        public RequestResponse LeaveGroup(int groupId)
+        {
+            var groupMember =
+                    _context.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString() && gm.GroupId == groupId);
+            var group = _context.Groups.Find(groupId);
+            if (groupMember == null)
+                return BadResponse("Cannot access group.");
+
+            if (groupMember.Group.OwnerId == _userId && groupMember.Group.GroupMembers.Count() > 1)
+                return BadResponse("Owner cannot leave group with existing members.");
+
+            _context.GroupMembers.Remove(groupMember);
+
+            int changeCount = 1;
+            if (group.GroupMembers.Count == 0)
+            {
+                _context.Groups.Remove(group);
+                changeCount++;
+            }
+
+            if (_context.SaveChanges() != changeCount)
+                return BadResponse("Could not leave group.");
+
+            return OkResponse("Successfully left group.");
         }
 
         public GroupDetail GetGroupById(int id)
@@ -90,48 +92,26 @@ namespace ChoreTracker.Services
             var group = _context.Groups.Find(id);
             var userGroupMember = group.GroupMembers.FirstOrDefault(m => m.UserId == _userId.ToString());
 
-            var groupDetail = new GroupDetail
-            {
-                GroupId = group.GroupId,
-                GroupName = group.GroupName,
-                GroupInviteCode = group.GroupInviteCode,
-                Members = group.GroupMembers.ToGroupMemberDetailList(),
-                UserIsOfficer = userGroupMember.IsOfficer,
-                UserNickName = userGroupMember.MemberNickName
-            };
+            var groupDetail =
+                new GroupDetail(group.GroupId, group.GroupName, group.GroupInviteCode, userGroupMember.IsOfficer, userGroupMember.MemberNickName, group.GroupMembers.ToGroupMemberDetailList());
 
             return groupDetail;
         }
 
         public RequestResponse CreateGroup(GroupCreate model)
         {
-            var groupEntity = new GroupEntity
-            {
-                DateFounded = DateTimeOffset.Now,
-                GroupName = model.GroupName,
-                OwnerId = _userId,
-                GroupInviteCode = "Ayy"
-            };
+            var groupEntity = new GroupEntity(model.GroupName, _userId, "Ayy");
 
             _context.Groups.Add(groupEntity);
 
             if (_context.SaveChanges() != 1)
                 return BadResponse("Could not create group");
 
-            var memberEntity = new GroupMemberEntity
-            {
-                GroupId = groupEntity.GroupId,
-                UserId = _userId.ToString(),
-                IsOfficer = true,
-                IsAccepted = true
-            };
+            var memberEntity = new GroupMemberEntity(groupEntity.GroupId, _userId.ToString(), true, true);
 
             _context.GroupMembers.Add(memberEntity);
             if (_context.SaveChanges() != 1)
                 return BadResponse("Could not create group member.");
-
-            string[] x = new string[] { "Hey", "There", "bud" };
-            x.ToSingleString();
 
             return OkResponse("Group was created!");
         }
@@ -146,13 +126,7 @@ namespace ChoreTracker.Services
             if (CheckUserGroupAccess(groupEntity.GroupId))
                 return BadResponse("Already in group.");
 
-            var memberEntity = new GroupMemberEntity
-            {
-                GroupId = groupEntity.GroupId,
-                UserId = _userId.ToString(),
-                IsOfficer = false,
-                IsAccepted = false
-            };
+            var memberEntity = new GroupMemberEntity(groupEntity.GroupId, _userId.ToString(), false, false);
 
             _context.GroupMembers.Add(memberEntity);
 

@@ -11,6 +11,21 @@ namespace ChoreTracker.Data.Entities
 {
     public class GroupMemberEntity
     {
+        public GroupMemberEntity() { }
+        public GroupMemberEntity(int groupId, string userId, bool isAccepted, bool isOfficer)
+        {
+            GroupId = groupId;
+            UserId = userId;
+            IsAccepted = isAccepted;
+            IsOfficer = isOfficer;
+        }
+        public GroupMemberEntity(int groupId, string userId, bool isAccepted, bool isOfficer, string nickName)
+            : this(groupId, userId, isAccepted, isOfficer)
+        {
+            MemberNickName = nickName;
+        }
+
+
         [Key]
         public int GroupMemberId { get; set; }
 

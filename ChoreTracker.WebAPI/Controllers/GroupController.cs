@@ -39,6 +39,7 @@ namespace ChoreTracker.WebAPI.Controllers
         }
 
         [HttpGet]
+        [Route("${id}")]
         public IHttpActionResult GetGroupInfo(int id)
         {
             var service = GetGroupService();
@@ -62,6 +63,20 @@ namespace ChoreTracker.WebAPI.Controllers
                 return InternalServerError(new Exception(groupJoinResponse.Message));
 
             return Ok(groupJoinResponse.Message);
+        }
+
+        [HttpDelete]
+        [Route("Leave/{id}")]
+        public IHttpActionResult LeaveGroup(int id)
+        {
+            var service = GetGroupService();
+
+            var leaveResponse = service.LeaveGroup(id);
+
+            if (!leaveResponse.Succeeded)
+                return InternalServerError(new Exception(leaveResponse.Message));
+
+            return Ok(leaveResponse.Message);
         }
 
         [HttpPut]
