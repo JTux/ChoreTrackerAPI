@@ -46,7 +46,7 @@ namespace ChoreTracker.Services.Extensions
                     IsOfficer = member.IsOfficer,
                     FirstName = member.User.FirstName,
                     LastName = member.User.LastName,
-                    MemberNickName = member.MemberNickName
+                    MemberNickname = member.MemberNickname
                 });
 
             return memberDetails;

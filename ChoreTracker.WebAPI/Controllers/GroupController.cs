@@ -1,4 +1,5 @@
-﻿using ChoreTracker.Models.GroupModels;
+﻿using ChoreTracker.Models.GroupMemberModels;
+using ChoreTracker.Models.GroupModels;
 using ChoreTracker.Models.ResponseModels;
 using ChoreTracker.Services;
 using Microsoft.AspNet.Identity;
@@ -30,16 +31,14 @@ namespace ChoreTracker.WebAPI.Controllers
                 return BadRequest(ModelState);
 
             var service = GetGroupService();
+
             var requestResponse = service.CreateGroup(model);
 
-            if (!requestResponse.Succeeded)
-                return InternalServerError(new Exception(requestResponse.Message));
-
-            return Ok(requestResponse.Message);
+            return GetResponseReturn(requestResponse);
         }
 
         [HttpGet]
-        [Route("${id}")]
+        [Route("{id}")]
         public IHttpActionResult GetGroupInfo(int id)
         {
             var service = GetGroupService();
@@ -59,10 +58,7 @@ namespace ChoreTracker.WebAPI.Controllers
 
             var groupJoinResponse = service.JoinGroup(key);
 
-            if (!groupJoinResponse.Succeeded)
-                return InternalServerError(new Exception(groupJoinResponse.Message));
-
-            return Ok(groupJoinResponse.Message);
+            return GetResponseReturn(groupJoinResponse);
         }
 
         [HttpDelete]
@@ -73,10 +69,7 @@ namespace ChoreTracker.WebAPI.Controllers
 
             var leaveResponse = service.LeaveGroup(id);
 
-            if (!leaveResponse.Succeeded)
-                return InternalServerError(new Exception(leaveResponse.Message));
-
-            return Ok(leaveResponse.Message);
+            return GetResponseReturn(leaveResponse);
         }
 
         [HttpPut]
@@ -87,10 +80,7 @@ namespace ChoreTracker.WebAPI.Controllers
 
             var applicantAcceptResponse = service.AcceptApplicant(id);
 
-            if (!applicantAcceptResponse.Succeeded)
-                return InternalServerError(new Exception(applicantAcceptResponse.Message));
-
-            return Ok(applicantAcceptResponse.Message);
+            return GetResponseReturn(applicantAcceptResponse);
         }
 
         [HttpPut]
@@ -101,10 +91,7 @@ namespace ChoreTracker.WebAPI.Controllers
 
             var applicantDeclineResponse = service.DeclineApplicant(id);
 
-            if (!applicantDeclineResponse.Succeeded)
-                return InternalServerError(new Exception(applicantDeclineResponse.Message));
-
-            return Ok(applicantDeclineResponse.Message);
+            return GetResponseReturn(applicantDeclineResponse);
         }
 
         [HttpDelete]
@@ -115,10 +102,32 @@ namespace ChoreTracker.WebAPI.Controllers
 
             var removalResponse = service.RemoveMember(id);
 
-            if (!removalResponse.Succeeded)
-                return InternalServerError(new Exception(removalResponse.Message));
+            return GetResponseReturn(removalResponse);
+        }
 
-            return Ok(removalResponse.Message);
+        [HttpPut]
+        [Route("{id}/UpdateNickname")]
+        public IHttpActionResult UpdateUserNickname(int id, MemberNicknameUpdate model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (id != model.GroupId)
+                return BadRequest("Group Id Mismatch.");
+
+            var service = GetMemberService();
+
+            var updateResponse = service.UpdateNickname(model);
+
+            return GetResponseReturn(updateResponse);
+        }
+
+        private IHttpActionResult GetResponseReturn(RequestResponse response)
+        {
+            if (!response.Succeeded)
+                return InternalServerError(new Exception(response.Message));
+
+            return Ok(response.Message);
         }
 
         private GroupService GetGroupService() => new GroupService(Guid.Parse(User.Identity.GetUserId()));

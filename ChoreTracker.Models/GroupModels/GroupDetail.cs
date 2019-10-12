@@ -10,13 +10,13 @@ namespace ChoreTracker.Models.GroupModels
     public class GroupDetail
     {
         public GroupDetail() { }
-        public GroupDetail(int groupId, string groupName, string inviteCode, bool userIsOfficer, string userNickName, List<GroupMemberDetail> members)
+        public GroupDetail(int groupId, string groupName, string inviteCode, bool userIsOfficer, string userNickname, List<GroupMemberDetail> members)
         {
             GroupId = groupId;
             GroupName = groupName;
             GroupInviteCode = inviteCode;
             UserIsOfficer = userIsOfficer;
-            UserNickName = userNickName;
+            UserNickname = userNickname;
             Members = members;
         }
 
@@ -24,7 +24,7 @@ namespace ChoreTracker.Models.GroupModels
         public string GroupName { get; set; }
         public string GroupInviteCode { get; set; }
         public bool UserIsOfficer { get; set; }
-        public string UserNickName { get; set; }
+        public string UserNickname { get; set; }
         public List<GroupMemberDetail> Members { get; set; }
     }
 }

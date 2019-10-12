@@ -19,10 +19,10 @@ namespace ChoreTracker.Data.Entities
             IsAccepted = isAccepted;
             IsOfficer = isOfficer;
         }
-        public GroupMemberEntity(int groupId, string userId, bool isAccepted, bool isOfficer, string nickName)
+        public GroupMemberEntity(int groupId, string userId, bool isAccepted, bool isOfficer, string nickname)
             : this(groupId, userId, isAccepted, isOfficer)
         {
-            MemberNickName = nickName;
+            MemberNickname = nickname;
         }
 
 
@@ -37,7 +37,7 @@ namespace ChoreTracker.Data.Entities
         [DefaultValue(false)]
         public bool IsOfficer { get; set; }
 
-        public string MemberNickName { get; set; }
+        public string MemberNickname { get; set; }
 
         [ForeignKey(nameof(User))]
         public string UserId { get; set; }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ChoreTracker.Data;
+using ChoreTracker.Models.GroupMemberModels;
 using ChoreTracker.Models.ResponseModels;
 
 namespace ChoreTracker.Services
@@ -68,6 +69,20 @@ namespace ChoreTracker.Services
                 return BadResponse("Could not remove member.");
 
             return OkResponse("Member successfully removed.");
+        }
+
+        public RequestResponse UpdateNickname(MemberNicknameUpdate model)
+        {
+            var member = _context.GroupMembers.FirstOrDefault(gm => gm.GroupId == model.GroupId && gm.UserId == _userId.ToString());
+
+            if (member == null)
+                return BadResponse("Invalid member information.");
+
+            member.MemberNickname = model.NewNickname;
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Could not update nickname.");
+
+            return OkResponse("Nickname updated.");
         }
 
         private bool UserIsOfficer(int groupId)

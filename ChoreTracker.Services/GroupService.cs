@@ -38,7 +38,7 @@ namespace ChoreTracker.Services
                 if (membership.IsOfficer)
                     applicants = GetMemberDetailList(membership.Group.GroupMembers.Where(m => !m.IsAccepted));
 
-                groups.Add(new GroupListItem(membership.GroupId, membership.Group.GroupName, membership.Group.GroupInviteCode, membership.MemberNickName, membership.IsOfficer, members, applicants));
+                groups.Add(new GroupListItem(membership.GroupId, membership.Group.GroupName, membership.Group.GroupInviteCode, membership.MemberNickname, membership.IsOfficer, members, applicants));
             }
 
             return groups;
@@ -49,11 +49,11 @@ namespace ChoreTracker.Services
             var memberDetails = new List<GroupMemberDetail>();
             foreach (var entity in entities)
             {
-                var nickName = (!string.IsNullOrEmpty(entity.MemberNickName))
-                                ? entity.MemberNickName
+                var nickname = (!string.IsNullOrEmpty(entity.MemberNickname))
+                                ? entity.MemberNickname
                                 : $"{entity.User.FirstName} {entity.User.LastName}";
 
-                memberDetails.Add(new GroupMemberDetail(entity.GroupMemberId, entity.IsOfficer, nickName, entity.User.FirstName, entity.User.LastName));
+                memberDetails.Add(new GroupMemberDetail(entity.GroupMemberId, entity.IsOfficer, nickname, entity.User.FirstName, entity.User.LastName));
             }
             return memberDetails;
         }
@@ -93,7 +93,7 @@ namespace ChoreTracker.Services
             var userGroupMember = group.GroupMembers.FirstOrDefault(m => m.UserId == _userId.ToString());
 
             var groupDetail =
-                new GroupDetail(group.GroupId, group.GroupName, group.GroupInviteCode, userGroupMember.IsOfficer, userGroupMember.MemberNickName, group.GroupMembers.ToGroupMemberDetailList());
+                new GroupDetail(group.GroupId, group.GroupName, group.GroupInviteCode, userGroupMember.IsOfficer, userGroupMember.MemberNickname, group.GroupMembers.ToGroupMemberDetailList());
 
             return groupDetail;
         }
