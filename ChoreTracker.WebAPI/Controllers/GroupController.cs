@@ -34,7 +34,7 @@ namespace ChoreTracker.WebAPI.Controllers
 
             var requestResponse = service.CreateGroup(model);
 
-            return GetResponseReturn(requestResponse);
+            return ValidateRequestResponse(requestResponse);
         }
 
         [HttpGet]
@@ -58,18 +58,18 @@ namespace ChoreTracker.WebAPI.Controllers
 
             var groupJoinResponse = service.JoinGroup(key);
 
-            return GetResponseReturn(groupJoinResponse);
+            return ValidateRequestResponse(groupJoinResponse);
         }
 
         [HttpDelete]
-        [Route("Leave/{id}")]
+        [Route("{id}/Leave")]
         public IHttpActionResult LeaveGroup(int id)
         {
             var service = GetGroupService();
 
             var leaveResponse = service.LeaveGroup(id);
 
-            return GetResponseReturn(leaveResponse);
+            return ValidateRequestResponse(leaveResponse);
         }
 
         [HttpPut]
@@ -80,7 +80,7 @@ namespace ChoreTracker.WebAPI.Controllers
 
             var applicantAcceptResponse = service.AcceptApplicant(id);
 
-            return GetResponseReturn(applicantAcceptResponse);
+            return ValidateRequestResponse(applicantAcceptResponse);
         }
 
         [HttpPut]
@@ -91,38 +91,38 @@ namespace ChoreTracker.WebAPI.Controllers
 
             var applicantDeclineResponse = service.DeclineApplicant(id);
 
-            return GetResponseReturn(applicantDeclineResponse);
+            return ValidateRequestResponse(applicantDeclineResponse);
         }
 
         [HttpDelete]
-        [Route("M/Remove/{id}")]
+        [Route("M/{id}/Remove")]
         public IHttpActionResult RemoveMember(int id)
         {
             var service = GetMemberService();
 
             var removalResponse = service.RemoveMember(id);
 
-            return GetResponseReturn(removalResponse);
+            return ValidateRequestResponse(removalResponse);
         }
 
         [HttpPut]
-        [Route("{id}/UpdateNickname")]
+        [Route("M/{id}/UpdateNickname")]
         public IHttpActionResult UpdateUserNickname(int id, MemberNicknameUpdate model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (id != model.GroupId)
+            if (id != model.GroupMemberId)
                 return BadRequest("Group Id Mismatch.");
 
             var service = GetMemberService();
 
             var updateResponse = service.UpdateNickname(model);
 
-            return GetResponseReturn(updateResponse);
+            return ValidateRequestResponse(updateResponse);
         }
 
-        private IHttpActionResult GetResponseReturn(RequestResponse response)
+        private IHttpActionResult ValidateRequestResponse(RequestResponse response)
         {
             if (!response.Succeeded)
                 return InternalServerError(new Exception(response.Message));

@@ -73,10 +73,13 @@ namespace ChoreTracker.Services
 
         public RequestResponse UpdateNickname(MemberNicknameUpdate model)
         {
-            var member = _context.GroupMembers.FirstOrDefault(gm => gm.GroupId == model.GroupId && gm.UserId == _userId.ToString());
+            var member = _context.GroupMembers.FirstOrDefault(gm => gm.GroupMemberId == model.GroupMemberId);
 
             if (member == null)
                 return BadResponse("Invalid member information.");
+
+            if (member.UserId != _userId.ToString() && !UserIsOfficer(member.GroupId))
+                return BadResponse("Invalid permissions.");
 
             member.MemberNickname = model.NewNickname;
             if (_context.SaveChanges() != 1)

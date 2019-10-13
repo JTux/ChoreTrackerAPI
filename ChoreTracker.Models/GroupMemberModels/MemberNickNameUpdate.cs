@@ -10,7 +10,7 @@ namespace ChoreTracker.Models.GroupMemberModels
     public class MemberNicknameUpdate
     {
         [Required]
-        public int GroupId { get; set; }
+        public int GroupMemberId { get; set; }
 
         [Required]
         public string NewNickname { get; set; }
