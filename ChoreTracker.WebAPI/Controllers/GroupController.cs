@@ -151,6 +151,17 @@ namespace ChoreTracker.WebAPI.Controllers
             return ValidateRequestResponse(updateResponse);
         }
 
+        [HttpPut]
+        [Route("M/{id}/ToggleOfficer")]
+        public IHttpActionResult ToggleOfficer(int id)
+        {
+            var service = GetMemberService();
+
+            var response = service.ToggleOfficer(id);
+
+            return ValidateRequestResponse(response);
+        }
+
         private IHttpActionResult ValidateRequestResponse(RequestResponse response)
         {
             if (!response.Succeeded)

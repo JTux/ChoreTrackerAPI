@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ChoreTracker.Data;
+using ChoreTracker.Data.Entities;
 using ChoreTracker.Models.GroupMemberModels;
 using ChoreTracker.Models.ResponseModels;
 
@@ -110,6 +111,42 @@ namespace ChoreTracker.Services
                 return BadResponse("Could not update nickname.");
 
             return OkResponse("Nickname updated.");
+        }
+
+        public RequestResponse ToggleOfficer(int memberId)
+        {
+            var member = _context.GroupMembers.Find(memberId);
+
+            if (member == null)
+                return BadResponse("Invalid member information.");
+
+            if (member.Group.OwnerId != _userId)
+                return BadResponse("Invalid permissions.");
+
+            return (member.IsOfficer) ? DemoteOfficer(member) : PromoteOfficer(member);
+        }
+
+        private RequestResponse PromoteOfficer(GroupMemberEntity member)
+        {
+            member.IsOfficer = true;
+
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Unable to save changes.");
+
+            return OkResponse("Member promoted.");
+        }
+
+        private RequestResponse DemoteOfficer(GroupMemberEntity member)
+        {
+            if (member.UserId == _userId.ToString())
+                return BadResponse("Cannot demote yourself.");
+
+            member.IsOfficer = false;
+
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Unable to save changes.");
+
+            return OkResponse("Member demoted.");
         }
 
         private bool UserIsOfficer(int groupId)
