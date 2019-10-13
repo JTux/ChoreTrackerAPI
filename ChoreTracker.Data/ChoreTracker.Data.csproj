@@ -56,12 +56,23 @@
   <ItemGroup>
     <Compile Include="Entities\GroupEntity.cs" />
     <Compile Include="Entities\GroupMemberEntity.cs" />
+    <Compile Include="Entities\TaskEntity.cs" />
     <Compile Include="IdentityModels.cs" />
+    <Compile Include="Migrations\201910131503185_GroupsAndTasks.cs" />
+    <Compile Include="Migrations\201910131503185_GroupsAndTasks.Designer.cs">
+      <DependentUpon>201910131503185_GroupsAndTasks.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201910131503185_GroupsAndTasks.resx">
+      <DependentUpon>201910131503185_GroupsAndTasks.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

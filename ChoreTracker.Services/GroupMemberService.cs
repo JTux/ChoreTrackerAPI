@@ -21,28 +21,32 @@ namespace ChoreTracker.Services
             _context = new ApplicationDbContext();
         }
 
-        public GroupMemberDetail GetMemberDetail(int memberId)
+        public RequestResponse GetMemberDetail(int memberId)
         {
             var memberEntity = _context.GroupMembers.Find(memberId);
             if (memberEntity == null)
-                return null;
+                return BadResponse("Invalid member ID.");
 
-            var userMembership =
-                _context.GroupMembers.FirstOrDefault(m => m.GroupId == memberEntity.GroupId && _userId.ToString() == m.UserId);
+            var userMembership = memberEntity.Group.GroupMembers.FirstOrDefault(m => m.GroupId == memberEntity.GroupId && _userId.ToString() == m.UserId);
+
             if (userMembership == null)
-                return null;
+                return BadResponse("Invalid permissions.");
+
+            var nickname = (!string.IsNullOrEmpty(memberEntity.MemberNickname))
+                                ? memberEntity.MemberNickname
+                                : $"{memberEntity.User.FirstName} {memberEntity.User.LastName}";
 
             var memberDetail = new GroupMemberDetail
             {
                 GroupMemberId = memberEntity.GroupMemberId,
                 IsAccepted = memberEntity.IsAccepted,
                 IsOfficer = memberEntity.IsOfficer,
-                MemberNickname = memberEntity.MemberNickname,
+                MemberNickname = nickname,
                 FirstName = memberEntity.User.FirstName,
                 LastName = memberEntity.User.LastName
             };
 
-            return memberDetail;
+            return OkModelResponse("Member detail found.", memberDetail);
         }
 
         public RequestResponse AcceptApplicant(int applicantId)
