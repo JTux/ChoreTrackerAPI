@@ -9,9 +9,11 @@ namespace ChoreTracker.Models.GroupMemberModels
     public class GroupMemberDetail
     {
         public GroupMemberDetail() { }
-        public GroupMemberDetail(int groupMemberId, bool isOfficer, string nickname, string firstName, string lastName)
+
+        public GroupMemberDetail(int groupMemberId, bool isAccepted, bool isOfficer, string nickname, string firstName, string lastName)
         {
             GroupMemberId = groupMemberId;
+            IsAccepted = isAccepted;
             IsOfficer = isOfficer;
             MemberNickname = nickname;
             FirstName = firstName;
@@ -19,6 +21,8 @@ namespace ChoreTracker.Models.GroupMemberModels
         }
 
         public int GroupMemberId { get; set; }
+
+        public bool IsAccepted { get; set; }
 
         public bool IsOfficer { get; set; }
 

@@ -16,6 +16,8 @@ namespace ChoreTracker.WebAPI.Controllers
     [RoutePrefix("api/Group")]
     public class GroupController : ApiController
     {
+        //-- General Group Endpoints
+
         [HttpGet]
         public IHttpActionResult GetAvailableGroups()
         {
@@ -72,6 +74,8 @@ namespace ChoreTracker.WebAPI.Controllers
             return ValidateRequestResponse(leaveResponse);
         }
 
+        //-- Member Endpoints
+
         [HttpPut]
         [Route("M/{id}/Accept")]
         public IHttpActionResult AcceptApplicant(int id)
@@ -94,6 +98,20 @@ namespace ChoreTracker.WebAPI.Controllers
             return ValidateRequestResponse(applicantDeclineResponse);
         }
 
+        [HttpGet]
+        [Route("M/{id}")]
+        public IHttpActionResult GetMemberDetails(int id)
+        {
+            var service = GetMemberService();
+
+            var memberDetail = service.GetMemberDetail(id);
+
+            if (memberDetail == null)
+                return BadRequest("Invalid member ID.");
+
+            return Ok(memberDetail);
+        }
+
         [HttpDelete]
         [Route("M/{id}/Remove")]
         public IHttpActionResult RemoveMember(int id)
@@ -113,7 +131,7 @@ namespace ChoreTracker.WebAPI.Controllers
                 return BadRequest(ModelState);
 
             if (id != model.GroupMemberId)
-                return BadRequest("Group Id Mismatch.");
+                return BadRequest("Group ID Mismatch.");
 
             var service = GetMemberService();
 

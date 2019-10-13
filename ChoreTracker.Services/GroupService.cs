@@ -53,7 +53,7 @@ namespace ChoreTracker.Services
                                 ? entity.MemberNickname
                                 : $"{entity.User.FirstName} {entity.User.LastName}";
 
-                memberDetails.Add(new GroupMemberDetail(entity.GroupMemberId, entity.IsOfficer, nickname, entity.User.FirstName, entity.User.LastName));
+                memberDetails.Add(new GroupMemberDetail(entity.GroupMemberId, entity.IsAccepted, entity.IsOfficer, nickname, entity.User.FirstName, entity.User.LastName));
             }
             return memberDetails;
         }
