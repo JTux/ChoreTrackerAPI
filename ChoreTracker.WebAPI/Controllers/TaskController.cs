@@ -15,6 +15,19 @@ namespace ChoreTracker.WebAPI.Controllers
     [RoutePrefix("api/Task")]
     public class TaskController : BaseController
     {
+        [HttpPost]
+        public IHttpActionResult CreateNewTask(TaskCreate model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var service = GetTaskService();
+
+            var createResponse = service.CreateTask(model);
+
+            return ValidateRequestResponse(createResponse);
+        }
+
         [HttpGet]
         [Route("G/{id}")]
         public IHttpActionResult GetGroupTasks(int id)

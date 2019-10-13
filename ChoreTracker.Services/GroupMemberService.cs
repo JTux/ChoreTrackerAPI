@@ -62,7 +62,7 @@ namespace ChoreTracker.Services
             if (_context.SaveChanges() != 1)
                 return BadResponse("Could not accept applicant.");
 
-            return OkResponse("Member successfully added.");
+            return OkResponse("Member added successfully.");
         }
 
         public RequestResponse DeclineApplicant(int applicantId)
@@ -78,7 +78,7 @@ namespace ChoreTracker.Services
             if (_context.SaveChanges() != 1)
                 return BadResponse("Could not remove applicant.");
 
-            return OkResponse("Applicant successfully removed.");
+            return OkResponse("Applicant removed successfully.");
         }
 
         public RequestResponse RemoveMember(int memberId)
@@ -97,7 +97,7 @@ namespace ChoreTracker.Services
             if (_context.SaveChanges() != 1)
                 return BadResponse("Could not remove member.");
 
-            return OkResponse("Member successfully removed.");
+            return OkResponse("Member removed successfully.");
         }
 
         public RequestResponse UpdateNickname(MemberNicknameUpdate model)
@@ -114,7 +114,7 @@ namespace ChoreTracker.Services
             if (_context.SaveChanges() != 1)
                 return BadResponse("Could not update nickname.");
 
-            return OkResponse("Nickname updated.");
+            return OkResponse("Nickname updated successfully.");
         }
 
         public RequestResponse ToggleOfficer(int memberId)
@@ -137,7 +137,7 @@ namespace ChoreTracker.Services
             if (_context.SaveChanges() != 1)
                 return BadResponse("Unable to save changes.");
 
-            return OkResponse("Member promoted.");
+            return OkResponse("Member promoted successfully.");
         }
 
         private RequestResponse DemoteOfficer(GroupMemberEntity member)
@@ -150,7 +150,7 @@ namespace ChoreTracker.Services
             if (_context.SaveChanges() != 1)
                 return BadResponse("Unable to save changes.");
 
-            return OkResponse("Member demoted.");
+            return OkResponse("Member demoted successfully.");
         }
 
         private bool UserIsOfficer(int groupId)

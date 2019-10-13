@@ -116,7 +116,7 @@ namespace ChoreTracker.Services
             if (_context.SaveChanges() != 1)
                 return BadResponse("Could not create group member.");
 
-            return OkResponse("Group was created!");
+            return OkResponse("Group created successfully.");
         }
 
         public RequestResponse UpdateGroupInviteCode(int groupId)
