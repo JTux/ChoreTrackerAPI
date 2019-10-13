@@ -12,7 +12,7 @@ namespace ChoreTracker.Services
 {
     public class GroupMemberService : BaseService
     {
-        private Guid _userId;
+        private readonly Guid _userId;
         private readonly ApplicationDbContext _context;
 
         public GroupMemberService(Guid userId)
