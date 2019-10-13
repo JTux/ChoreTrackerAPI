@@ -16,8 +16,10 @@ namespace ChoreTracker.Services
     {
         private readonly Guid _userId;
         private readonly ApplicationDbContext _context;
+        private readonly Random _rand;
         public GroupService(Guid currentUserId)
         {
+            _rand = new Random();
             _userId = currentUserId;
             _context = new ApplicationDbContext();
         }
@@ -100,7 +102,7 @@ namespace ChoreTracker.Services
 
         public RequestResponse CreateGroup(GroupCreate model)
         {
-            var groupEntity = new GroupEntity(model.GroupName, _userId, "Ayy");
+            var groupEntity = new GroupEntity(model.GroupName, _userId, GetNewRandomKey(8));
 
             _context.Groups.Add(groupEntity);
 
@@ -114,6 +116,21 @@ namespace ChoreTracker.Services
                 return BadResponse("Could not create group member.");
 
             return OkResponse("Group was created!");
+        }
+
+        public RequestResponse UpdateGroupInviteCode(int groupId)
+        {
+            var userMembership = _context.GroupMembers.FirstOrDefault(gm => gm.GroupId == groupId && gm.UserId == _userId.ToString());
+
+            if (userMembership == null || !userMembership.IsOfficer)
+                return BadResponse("Unable to edit key.");
+
+            userMembership.Group.GroupInviteCode = GetNewRandomKey(8);
+
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Unable to save changes.");
+
+            return OkResponse("Invite key updated.");
         }
 
         public RequestResponse JoinGroup(string groupKey)
@@ -147,6 +164,21 @@ namespace ChoreTracker.Services
                     _context.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString() && gm.GroupId == groupId);
 
             return groupMember != null ? true : false;
+        }
+
+        private string GetNewRandomKey(int size)
+        {
+            string key = "";
+            while (true)
+            {
+                for (int i = 0; i < size; i++)
+                    key += Convert.ToChar(Convert.ToInt32(Math.Floor(26 * _rand.NextDouble() + 65)));
+
+                if (_context.Groups.Where(g => g.GroupInviteCode == key).Count() == 0)
+                    break;
+            }
+
+            return key;
         }
     }
 }

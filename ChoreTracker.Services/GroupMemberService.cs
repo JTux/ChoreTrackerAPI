@@ -20,6 +20,30 @@ namespace ChoreTracker.Services
             _context = new ApplicationDbContext();
         }
 
+        public GroupMemberDetail GetMemberDetail(int memberId)
+        {
+            var memberEntity = _context.GroupMembers.Find(memberId);
+            if (memberEntity == null)
+                return null;
+
+            var userMembership =
+                _context.GroupMembers.FirstOrDefault(m => m.GroupId == memberEntity.GroupId && _userId.ToString() == m.UserId);
+            if (userMembership == null)
+                return null;
+
+            var memberDetail = new GroupMemberDetail
+            {
+                GroupMemberId = memberEntity.GroupMemberId,
+                IsAccepted = memberEntity.IsAccepted,
+                IsOfficer = memberEntity.IsOfficer,
+                MemberNickname = memberEntity.MemberNickname,
+                FirstName = memberEntity.User.FirstName,
+                LastName = memberEntity.User.LastName
+            };
+
+            return memberDetail;
+        }
+
         public RequestResponse AcceptApplicant(int applicantId)
         {
             var applicant = _context.GroupMembers.Find(applicantId);
@@ -50,30 +74,6 @@ namespace ChoreTracker.Services
                 return BadResponse("Could not remove applicant.");
 
             return OkResponse("Applicant successfully removed.");
-        }
-
-        public GroupMemberDetail GetMemberDetail(int memberId)
-        {
-            var memberEntity = _context.GroupMembers.Find(memberId);
-            if (memberEntity == null)
-                return null;
-
-            var userMembership =
-                _context.GroupMembers.FirstOrDefault(m => m.GroupId == memberEntity.GroupId && _userId.ToString() == memberEntity.UserId);
-            if (userMembership == null)
-                return null;
-
-            var memberDetail = new GroupMemberDetail
-            {
-                GroupMemberId = memberEntity.GroupMemberId,
-                IsAccepted = memberEntity.IsAccepted,
-                IsOfficer = memberEntity.IsOfficer,
-                MemberNickname = memberEntity.MemberNickname,
-                FirstName = memberEntity.User.FirstName,
-                LastName = memberEntity.User.LastName
-            };
-
-            return memberDetail;
         }
 
         public RequestResponse RemoveMember(int memberId)

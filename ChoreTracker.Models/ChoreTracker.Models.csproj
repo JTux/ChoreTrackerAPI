@@ -60,6 +60,7 @@
     <Compile Include="GroupModels\GroupCreate.cs" />
     <Compile Include="GroupModels\GroupDetail.cs" />
     <Compile Include="GroupModels\GroupJoin.cs" />
+    <Compile Include="GroupModels\GroupKeyUpdate.cs" />
     <Compile Include="GroupModels\GroupListItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResponseModels\RequestResponse.cs" />

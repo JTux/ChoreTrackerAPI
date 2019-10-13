@@ -52,6 +52,17 @@ namespace ChoreTracker.WebAPI.Controllers
             return Ok(group);
         }
 
+        [HttpPut]
+        [Route("{id}/UpdateKey")]
+        public IHttpActionResult UpdateGroupInviteKey(int id)
+        {
+            var service = GetGroupService();
+
+            var updateResponse = service.UpdateGroupInviteCode(id);
+
+            return ValidateRequestResponse(updateResponse);
+        }
+
         [HttpPost]
         [Route("Join/{key}")]
         public IHttpActionResult JoinGroupAsMember(string key)
@@ -76,6 +87,20 @@ namespace ChoreTracker.WebAPI.Controllers
 
         //-- Member Endpoints
 
+        [HttpGet]
+        [Route("M/{id}")]
+        public IHttpActionResult GetMemberDetails(int id)
+        {
+            var service = GetMemberService();
+
+            var memberDetail = service.GetMemberDetail(id);
+
+            if (memberDetail == null)
+                return BadRequest("Invalid member ID.");
+
+            return Ok(memberDetail);
+        }
+
         [HttpPut]
         [Route("M/{id}/Accept")]
         public IHttpActionResult AcceptApplicant(int id)
@@ -96,20 +121,6 @@ namespace ChoreTracker.WebAPI.Controllers
             var applicantDeclineResponse = service.DeclineApplicant(id);
 
             return ValidateRequestResponse(applicantDeclineResponse);
-        }
-
-        [HttpGet]
-        [Route("M/{id}")]
-        public IHttpActionResult GetMemberDetails(int id)
-        {
-            var service = GetMemberService();
-
-            var memberDetail = service.GetMemberDetail(id);
-
-            if (memberDetail == null)
-                return BadRequest("Invalid member ID.");
-
-            return Ok(memberDetail);
         }
 
         [HttpDelete]
