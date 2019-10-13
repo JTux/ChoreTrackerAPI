@@ -1,4 +1,5 @@
 ﻿using ChoreTracker.Models.GroupMemberModels;
+using ChoreTracker.Models.TaskModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,11 @@ namespace ChoreTracker.Models.GroupModels
             Members = members;
             Applicants = applicants;
         }
+        public GroupListItem(int groupId, string groupName, string inviteCode, string nickname, bool userIsOfficer, List<GroupMemberDetail> members, List<GroupMemberDetail> applicants, List<TaskDetail> tasks)
+            : this(groupId, groupName, inviteCode, nickname, userIsOfficer, members, applicants)
+        {
+            Tasks = tasks;
+        }
 
         public int GroupId { get; set; }
         public string GroupName { get; set; }
@@ -28,5 +34,7 @@ namespace ChoreTracker.Models.GroupModels
         public bool UserIsOfficer { get; set; }
         public List<GroupMemberDetail> Members { get; set; }
         public List<GroupMemberDetail> Applicants { get; set; }
+
+        public List<TaskDetail> Tasks { get; set; }
     }
 }

@@ -33,5 +33,6 @@ namespace ChoreTracker.Data.Entities
         public DateTimeOffset DateFounded { get; set; }
 
         public virtual ICollection<GroupMemberEntity> GroupMembers { get; set; }
+        public virtual ICollection<TaskEntity> Tasks { get; set; }
     }
 }

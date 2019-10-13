@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using ChoreTracker.Data;
+using ChoreTracker.Models.GroupModels;
+using ChoreTracker.Services;
 using ChoreTracker.WebAPI.Data;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -46,12 +48,25 @@ namespace ChoreTracker.WebAPI
 
                 if (userCreationResult.Succeeded)
                     userManager.AddToRole(adminUser.Id, RoleNames.Admin);
+
+                CreateAdminGroup();
             }
 
             if (!roleManager.RoleExists(RoleNames.User))
             {
                 var userRole = new IdentityRole(RoleNames.User);
                 roleManager.Create(userRole);
+            }
+        }
+        private void CreateAdminGroup()
+        {
+            var context = new ApplicationDbContext();
+            if (context.Groups.FirstOrDefault(g => g.GroupName == "Admin Group") == null)
+            {
+                var adminUser = context.Users.FirstOrDefault(u => u.Email == "admin@example.com");
+                var groupService = new GroupService(Guid.Parse(adminUser.Id));
+                var adminGroupCreate = new GroupCreate { GroupName = "Admin Group" };
+                groupService.CreateGroup(adminGroupCreate);
             }
         }
     }

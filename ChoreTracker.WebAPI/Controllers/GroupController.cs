@@ -2,6 +2,7 @@
 using ChoreTracker.Models.GroupModels;
 using ChoreTracker.Models.ResponseModels;
 using ChoreTracker.Services;
+using ChoreTracker.WebAPI.Models;
 using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace ChoreTracker.WebAPI.Controllers
 {
     [Authorize]
     [RoutePrefix("api/Group")]
-    public class GroupController : ApiController
+    public class GroupController : BaseController
     {
         //-- General Group Endpoints
 
@@ -45,11 +46,9 @@ namespace ChoreTracker.WebAPI.Controllers
         {
             var service = GetGroupService();
 
-            var group = service.GetGroupById(id);
-            if (group == null)
-                return BadRequest("Group not found.");
+            var groupResponse = service.GetGroupById(id);
 
-            return Ok(group);
+            return ValidateModelRequestResponse<GroupDetail>(groupResponse);
         }
 
         [HttpPut]
@@ -95,10 +94,7 @@ namespace ChoreTracker.WebAPI.Controllers
 
             var memberDetail = service.GetMemberDetail(id);
 
-            if (memberDetail == null)
-                return BadRequest("Invalid member ID.");
-
-            return Ok(memberDetail);
+            return ValidateModelRequestResponse<GroupMemberDetail>(memberDetail);
         }
 
         [HttpPut]
@@ -161,16 +157,5 @@ namespace ChoreTracker.WebAPI.Controllers
 
             return ValidateRequestResponse(response);
         }
-
-        private IHttpActionResult ValidateRequestResponse(RequestResponse response)
-        {
-            if (!response.Succeeded)
-                return InternalServerError(new Exception(response.Message));
-
-            return Ok(response.Message);
-        }
-
-        private GroupService GetGroupService() => new GroupService(Guid.Parse(User.Identity.GetUserId()));
-        private GroupMemberService GetMemberService() => new GroupMemberService(Guid.Parse(User.Identity.GetUserId()));
     }
 }

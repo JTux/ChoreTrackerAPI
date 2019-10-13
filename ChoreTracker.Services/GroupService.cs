@@ -3,6 +3,7 @@ using ChoreTracker.Data.Entities;
 using ChoreTracker.Models.GroupMemberModels;
 using ChoreTracker.Models.GroupModels;
 using ChoreTracker.Models.ResponseModels;
+using ChoreTracker.Models.TaskModels;
 using ChoreTracker.Services.Extensions;
 using System;
 using System.Collections.Generic;
@@ -16,10 +17,8 @@ namespace ChoreTracker.Services
     {
         private readonly Guid _userId;
         private readonly ApplicationDbContext _context;
-        private readonly Random _rand;
         public GroupService(Guid currentUserId)
         {
-            _rand = new Random();
             _userId = currentUserId;
             _context = new ApplicationDbContext();
         }
@@ -40,7 +39,9 @@ namespace ChoreTracker.Services
                 if (membership.IsOfficer)
                     applicants = GetMemberDetailList(membership.Group.GroupMembers.Where(m => !m.IsAccepted));
 
-                groups.Add(new GroupListItem(membership.GroupId, membership.Group.GroupName, membership.Group.GroupInviteCode, membership.MemberNickname, membership.IsOfficer, members, applicants));
+                var tasks = new TaskService(_userId).GetTasksByGroupID(membership.GroupId).ToList();
+
+                groups.Add(new GroupListItem(membership.GroupId, membership.Group.GroupName, membership.Group.GroupInviteCode, membership.MemberNickname, membership.IsOfficer, members, applicants, tasks));
             }
 
             return groups;
@@ -64,7 +65,7 @@ namespace ChoreTracker.Services
         {
             var groupMember =
                     _context.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString() && gm.GroupId == groupId);
-            var group = _context.Groups.Find(groupId);
+
             if (groupMember == null)
                 return BadResponse("Cannot access group.");
 
@@ -74,9 +75,9 @@ namespace ChoreTracker.Services
             _context.GroupMembers.Remove(groupMember);
 
             int changeCount = 1;
-            if (group.GroupMembers.Count == 0)
+            if (groupMember.Group.GroupMembers.Count == 0)
             {
-                _context.Groups.Remove(group);
+                _context.Groups.Remove(groupMember.Group);
                 changeCount++;
             }
 
@@ -86,10 +87,10 @@ namespace ChoreTracker.Services
             return OkResponse("Successfully left group.");
         }
 
-        public GroupDetail GetGroupById(int id)
+        public RequestResponse GetGroupById(int id)
         {
             if (!CheckUserGroupAccess(id))
-                return null;
+                return BadResponse("Invalid permissions.");
 
             var group = _context.Groups.Find(id);
             var userGroupMember = group.GroupMembers.FirstOrDefault(m => m.UserId == _userId.ToString());
@@ -97,7 +98,7 @@ namespace ChoreTracker.Services
             var groupDetail =
                 new GroupDetail(group.GroupId, group.GroupName, group.GroupInviteCode, userGroupMember.IsOfficer, userGroupMember.MemberNickname, group.GroupMembers.ToGroupMemberDetailList());
 
-            return groupDetail;
+            return OkModelResponse("Group found.", groupDetail);
         }
 
         public RequestResponse CreateGroup(GroupCreate model)
@@ -115,7 +116,7 @@ namespace ChoreTracker.Services
             if (_context.SaveChanges() != 1)
                 return BadResponse("Could not create group member.");
 
-            return OkResponse("Group was created!");
+            return OkResponse("Group created successfully.");
         }
 
         public RequestResponse UpdateGroupInviteCode(int groupId)
@@ -172,7 +173,7 @@ namespace ChoreTracker.Services
             while (true)
             {
                 for (int i = 0; i < size; i++)
-                    key += Convert.ToChar(Convert.ToInt32(Math.Floor(26 * _rand.NextDouble() + 65)));
+                    key += Convert.ToChar(Convert.ToInt32(Math.Floor(26 * RandomGenerator.NextDouble() + 65)));
 
                 if (_context.Groups.Where(g => g.GroupInviteCode == key).Count() == 0)
                     break;

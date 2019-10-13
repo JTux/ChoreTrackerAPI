@@ -21,28 +21,32 @@ namespace ChoreTracker.Services
             _context = new ApplicationDbContext();
         }
 
-        public GroupMemberDetail GetMemberDetail(int memberId)
+        public RequestResponse GetMemberDetail(int memberId)
         {
             var memberEntity = _context.GroupMembers.Find(memberId);
             if (memberEntity == null)
-                return null;
+                return BadResponse("Invalid member ID.");
 
-            var userMembership =
-                _context.GroupMembers.FirstOrDefault(m => m.GroupId == memberEntity.GroupId && _userId.ToString() == m.UserId);
+            var userMembership = memberEntity.Group.GroupMembers.FirstOrDefault(m => m.GroupId == memberEntity.GroupId && _userId.ToString() == m.UserId);
+
             if (userMembership == null)
-                return null;
+                return BadResponse("Invalid permissions.");
+
+            var nickname = (!string.IsNullOrEmpty(memberEntity.MemberNickname))
+                                ? memberEntity.MemberNickname
+                                : $"{memberEntity.User.FirstName} {memberEntity.User.LastName}";
 
             var memberDetail = new GroupMemberDetail
             {
                 GroupMemberId = memberEntity.GroupMemberId,
                 IsAccepted = memberEntity.IsAccepted,
                 IsOfficer = memberEntity.IsOfficer,
-                MemberNickname = memberEntity.MemberNickname,
+                MemberNickname = nickname,
                 FirstName = memberEntity.User.FirstName,
                 LastName = memberEntity.User.LastName
             };
 
-            return memberDetail;
+            return OkModelResponse("Member detail found.", memberDetail);
         }
 
         public RequestResponse AcceptApplicant(int applicantId)
@@ -58,7 +62,7 @@ namespace ChoreTracker.Services
             if (_context.SaveChanges() != 1)
                 return BadResponse("Could not accept applicant.");
 
-            return OkResponse("Member successfully added.");
+            return OkResponse("Member added successfully.");
         }
 
         public RequestResponse DeclineApplicant(int applicantId)
@@ -74,7 +78,7 @@ namespace ChoreTracker.Services
             if (_context.SaveChanges() != 1)
                 return BadResponse("Could not remove applicant.");
 
-            return OkResponse("Applicant successfully removed.");
+            return OkResponse("Applicant removed successfully.");
         }
 
         public RequestResponse RemoveMember(int memberId)
@@ -93,7 +97,7 @@ namespace ChoreTracker.Services
             if (_context.SaveChanges() != 1)
                 return BadResponse("Could not remove member.");
 
-            return OkResponse("Member successfully removed.");
+            return OkResponse("Member removed successfully.");
         }
 
         public RequestResponse UpdateNickname(MemberNicknameUpdate model)
@@ -110,7 +114,7 @@ namespace ChoreTracker.Services
             if (_context.SaveChanges() != 1)
                 return BadResponse("Could not update nickname.");
 
-            return OkResponse("Nickname updated.");
+            return OkResponse("Nickname updated successfully.");
         }
 
         public RequestResponse ToggleOfficer(int memberId)
@@ -133,7 +137,7 @@ namespace ChoreTracker.Services
             if (_context.SaveChanges() != 1)
                 return BadResponse("Unable to save changes.");
 
-            return OkResponse("Member promoted.");
+            return OkResponse("Member promoted successfully.");
         }
 
         private RequestResponse DemoteOfficer(GroupMemberEntity member)
@@ -146,7 +150,7 @@ namespace ChoreTracker.Services
             if (_context.SaveChanges() != 1)
                 return BadResponse("Unable to save changes.");
 
-            return OkResponse("Member demoted.");
+            return OkResponse("Member demoted successfully.");
         }
 
         private bool UserIsOfficer(int groupId)

@@ -38,6 +38,7 @@ namespace ChoreTracker.Data
 
         public DbSet<GroupEntity> Groups { get; set; }
         public DbSet<GroupMemberEntity> GroupMembers { get; set; }
+        public DbSet<TaskEntity> Tasks { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
