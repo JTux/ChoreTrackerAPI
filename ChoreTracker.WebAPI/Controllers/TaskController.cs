@@ -1,6 +1,7 @@
 ﻿using ChoreTracker.Models.ResponseModels;
 using ChoreTracker.Models.TaskModels;
 using ChoreTracker.Services;
+using ChoreTracker.WebAPI.Models;
 using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ using System.Web.Http;
 namespace ChoreTracker.WebAPI.Controllers
 {
     [RoutePrefix("api/Task")]
-    public class TaskController : ApiController
+    public class TaskController : BaseController
     {
         [HttpGet]
         [Route("G/{id}")]
@@ -32,27 +33,5 @@ namespace ChoreTracker.WebAPI.Controllers
 
             return ValidateModelRequestResponse<TaskDetail>(response);
         }
-
-        //-- Helpers
-
-        private IHttpActionResult ValidateRequestResponse(RequestResponse response)
-        {
-            if (!response.Succeeded)
-                return InternalServerError(new Exception(response.Message));
-
-            return Ok(response.Message);
-        }
-
-        private IHttpActionResult ValidateModelRequestResponse<T>(RequestResponse response)
-        {
-            if (!response.Succeeded)
-                return BadRequest(response.Message);
-
-            var castedResponse = (ModelRequestResponse<T>)response;
-
-            return Ok(castedResponse.Model);
-        }
-
-        private TaskService GetTaskService() => new TaskService(Guid.Parse(User.Identity.GetUserId()));
     }
 }

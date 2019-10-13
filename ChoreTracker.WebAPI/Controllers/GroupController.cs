@@ -2,6 +2,7 @@
 using ChoreTracker.Models.GroupModels;
 using ChoreTracker.Models.ResponseModels;
 using ChoreTracker.Services;
+using ChoreTracker.WebAPI.Models;
 using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace ChoreTracker.WebAPI.Controllers
 {
     [Authorize]
     [RoutePrefix("api/Group")]
-    public class GroupController : ApiController
+    public class GroupController : BaseController
     {
         //-- General Group Endpoints
 
@@ -156,28 +157,5 @@ namespace ChoreTracker.WebAPI.Controllers
 
             return ValidateRequestResponse(response);
         }
-
-        //-- Helpers
-
-        private IHttpActionResult ValidateRequestResponse(RequestResponse response)
-        {
-            if (!response.Succeeded)
-                return InternalServerError(new Exception(response.Message));
-
-            return Ok(response.Message);
-        }
-
-        private IHttpActionResult ValidateModelRequestResponse<T>(RequestResponse response)
-        {
-            if (!response.Succeeded)
-                return BadRequest(response.Message);
-
-            var castedResponse = (ModelRequestResponse<T>)response;
-
-            return Ok(castedResponse.Model);
-        }
-
-        private GroupService GetGroupService() => new GroupService(Guid.Parse(User.Identity.GetUserId()));
-        private GroupMemberService GetMemberService() => new GroupMemberService(Guid.Parse(User.Identity.GetUserId()));
     }
 }
