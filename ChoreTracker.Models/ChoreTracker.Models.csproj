@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdminModels\UserInfo.cs" />
+    <Compile Include="CompletedTaskModels\CompletedTaskDetail.cs" />
     <Compile Include="GroupMemberModels\GroupMemberDetail.cs" />
     <Compile Include="GroupMemberModels\MemberNicknameUpdate.cs" />
     <Compile Include="GroupModels\GroupCreate.cs" />

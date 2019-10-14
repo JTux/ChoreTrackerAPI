@@ -2,6 +2,7 @@
 using ChoreTracker.Data.Entities;
 using ChoreTracker.Models.ResponseModels;
 using ChoreTracker.Models.TaskModels;
+using ChoreTracker.Services.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace ChoreTracker.Services
         public IEnumerable<TaskDetail> GetTasksByGroupID(int groupId)
         {
             var userMembership =
-                _context.GroupMembers.FirstOrDefault(gm => gm.GroupId == groupId && gm.UserId == _userId.ToString());
+                _context.GroupMembers.FirstOrDefault(gm => gm.GroupId == groupId && gm.UserId == _userId.ToString() && gm.IsAccepted);
 
             if (userMembership == null)
                 return null;
@@ -38,7 +39,8 @@ namespace ChoreTracker.Services
                         IsComplete = t.IsComplete,
                         GroupId = t.GroupId,
                         GroupName = t.Group.GroupName,
-                        CreatedUtc = t.CreatedUtc
+                        CreatedUtc = t.CreatedUtc,
+                        Completions = t.Completions.ToDetailList()
                     }).ToList();
 
             return tasks;
@@ -51,12 +53,14 @@ namespace ChoreTracker.Services
                 return BadResponse("Invalid task ID");
 
             var userMembership =
-                task.Group.GroupMembers.FirstOrDefault(gm => gm.GroupId == task.GroupId && gm.UserId == _userId.ToString());
+                task.Group.GroupMembers.FirstOrDefault(gm => gm.GroupId == task.GroupId && gm.UserId == _userId.ToString() && gm.IsAccepted);
 
             if (userMembership == null)
                 return BadResponse("Invalid permissions");
 
             var model = new TaskDetail(task.TaskId, task.TaskName, task.Description, task.CreatedUtc, task.IsComplete, task.RewardValue, task.GroupId);
+
+            model.Completions = task.Completions.ToDetailList();
 
             return OkModelResponse("Task found.", model);
         }
@@ -64,7 +68,7 @@ namespace ChoreTracker.Services
         public RequestResponse CreateTask(TaskCreate model)
         {
             var userMembership =
-                _context.GroupMembers.FirstOrDefault(gm => gm.GroupId == model.GroupId && gm.UserId == _userId.ToString());
+                _context.GroupMembers.FirstOrDefault(gm => gm.GroupId == model.GroupId && gm.UserId == _userId.ToString() && gm.IsAccepted);
 
             if (userMembership == null || !userMembership.IsOfficer)
                 return BadResponse("Invalid permissions.");
@@ -107,13 +111,62 @@ namespace ChoreTracker.Services
             return OkResponse("Task updated");
         }
 
+        public RequestResponse CompleteTask(int taskId)
+        {
+            var task = _context.Tasks.Find(taskId);
+            if (task == null)
+                return BadResponse("Invalid task ID.");
+
+            var userMembership = task.Group.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString() && gm.IsAccepted);
+            if (userMembership == null)
+                return BadResponse("Invalid permissions.");
+
+            if (task.Completions.FirstOrDefault(c => c.UserId == _userId.ToString() && c.CompletedUtc.Date == DateTime.Today) != null)
+                return BadResponse("Already completed task today.");
+
+            var completedTaskEntity = new CompletedTaskEntity
+            {
+                TaskId = taskId,
+                UserId = _userId.ToString(),
+                IsValid = false,
+                CompletedUtc = DateTimeOffset.Now
+            };
+
+            _context.CompletedTasks.Add(completedTaskEntity);
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Cannot complete task.");
+
+            return OkResponse("Task completed successfully.");
+        }
+
+        public RequestResponse ValidateCompletedTask(int completedTaskId)
+        {
+            var completedTask = _context.CompletedTasks.Find(completedTaskId);
+            if (completedTask == null)
+                return BadResponse("Invalid completed task ID.");
+
+            var userMembership = completedTask.Task.Group.GroupMembers.FirstOrDefault(m => m.UserId == _userId.ToString() && m.IsAccepted);
+            if (userMembership == null || !userMembership.IsOfficer)
+                return BadResponse("Invalid permissions.");
+
+            if (completedTask.IsValid)
+                return BadResponse("Completed task already marked valid.");
+
+            completedTask.IsValid = true;
+            completedTask.Task.IsComplete = true;
+            if (_context.SaveChanges() != 2)
+                return BadResponse("Cannot save completed task.");
+
+            return OkResponse("Completed task validated successfully.");
+        }
+
         public RequestResponse DeleteTaskByID(int taskId)
         {
             var task = _context.Tasks.Find(taskId);
             if (task == null)
                 return BadResponse("Invalid task ID.");
 
-            var userMembership = task.Group.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString());
+            var userMembership = task.Group.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString() && gm.IsAccepted);
             if (userMembership == null || !userMembership.IsOfficer)
                 return BadResponse("Invalid permissions");
 

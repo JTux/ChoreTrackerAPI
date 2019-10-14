@@ -87,16 +87,19 @@ namespace ChoreTracker.Services
             return OkResponse("Successfully left group.");
         }
 
-        public RequestResponse GetGroupById(int id)
+        public RequestResponse GetGroupById(int groupId)
         {
-            if (!CheckUserGroupAccess(id))
+            var userMembership = _context.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString() && gm.GroupId == groupId);
+            if (userMembership == null || !userMembership.IsAccepted)
                 return BadResponse("Invalid permissions.");
 
-            var group = _context.Groups.Find(id);
-            var userGroupMember = group.GroupMembers.FirstOrDefault(m => m.UserId == _userId.ToString());
-
-            var groupDetail =
-                new GroupDetail(group.GroupId, group.GroupName, group.GroupInviteCode, userGroupMember.IsOfficer, userGroupMember.MemberNickname, group.GroupMembers.ToGroupMemberDetailList());
+            var groupDetail = new GroupDetail(
+                userMembership.Group.GroupId,
+                userMembership.Group.GroupName,
+                userMembership.Group.GroupInviteCode,
+                userMembership.IsOfficer,
+                userMembership.MemberNickname,
+                userMembership.Group.GroupMembers.ToGroupMemberDetailList());
 
             return OkModelResponse("Group found.", groupDetail);
         }
@@ -121,7 +124,7 @@ namespace ChoreTracker.Services
 
         public RequestResponse UpdateGroupInviteCode(int groupId)
         {
-            var userMembership = _context.GroupMembers.FirstOrDefault(gm => gm.GroupId == groupId && gm.UserId == _userId.ToString());
+            var userMembership = _context.GroupMembers.FirstOrDefault(gm => gm.GroupId == groupId && gm.UserId == _userId.ToString() && gm.IsAccepted);
 
             if (userMembership == null || !userMembership.IsOfficer)
                 return BadResponse("Unable to edit key.");

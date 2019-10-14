@@ -59,6 +59,24 @@ namespace ChoreTracker.WebAPI.Controllers
             return ValidateRequestResponse(updateResponse);
         }
 
+        [HttpPut]
+        [Route("{id}/Complete")]
+        public IHttpActionResult CompleteTask(int id)
+        {
+            var service = GetTaskService();
+            var completionResponse = service.CompleteTask(id);
+            return ValidateRequestResponse(completionResponse);
+        }
+
+        [HttpPut]
+        [Route("C/{id}/Validate")]
+        public IHttpActionResult ValidateCompletedTask(int id)
+        {
+            var service = GetTaskService();
+            var validationResponse = service.ValidateCompletedTask(id);
+            return ValidateRequestResponse(validationResponse);
+        }
+
         [HttpDelete]
         [Route("{id}")]
         public IHttpActionResult DeleteTask(int id)

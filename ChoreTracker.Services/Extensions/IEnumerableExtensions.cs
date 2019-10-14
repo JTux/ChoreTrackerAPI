@@ -1,4 +1,5 @@
 ﻿using ChoreTracker.Data.Entities;
+using ChoreTracker.Models.CompletedTaskModels;
 using ChoreTracker.Models.GroupMemberModels;
 using System;
 using System.Collections.Generic;
@@ -50,6 +51,23 @@ namespace ChoreTracker.Services.Extensions
                 });
 
             return memberDetails;
+        }
+
+        public static List<CompletedTaskDetail> ToDetailList(this IEnumerable<CompletedTaskEntity> completedTasks)
+        {
+            var completedTaskDetails = new List<CompletedTaskDetail>();
+
+            foreach (var task in completedTasks)
+                completedTaskDetails.Add(new CompletedTaskDetail
+                {
+                    CompletedTaskId = task.CompletedTaskId,
+                    CompletedUtc = task.CompletedUtc,
+                    IsValid = task.IsValid,
+                    UserId = task.UserId,
+                    TaskId = task.TaskId,
+                });
+
+            return completedTaskDetails;
         }
     }
 }

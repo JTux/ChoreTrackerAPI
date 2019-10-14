@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ChoreTracker.Models.CompletedTaskModels;
 
 namespace ChoreTracker.Models.TaskModels
 {
@@ -28,5 +29,6 @@ namespace ChoreTracker.Models.TaskModels
         public DateTimeOffset CreatedUtc { get; set; }
         public int GroupId { get; set; }
         public string GroupName { get; set; }
+        public List<CompletedTaskDetail> Completions { get; set; }
     }
 }

@@ -33,5 +33,7 @@ namespace ChoreTracker.Data.Entities
         [ForeignKey(nameof(Group))]
         public int GroupId { get; set; }
         public virtual GroupEntity Group { get; set; }
+
+        public virtual ICollection<CompletedTaskEntity> Completions { get; set; }
     }
 }
