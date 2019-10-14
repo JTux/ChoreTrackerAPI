@@ -106,5 +106,22 @@ namespace ChoreTracker.Services
 
             return OkResponse("Task updated");
         }
+
+        public RequestResponse DeleteTaskByID(int taskId)
+        {
+            var task = _context.Tasks.Find(taskId);
+            if (task == null)
+                return BadResponse("Invalid task ID.");
+
+            var userMembership = task.Group.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString());
+            if (userMembership == null || !userMembership.IsOfficer)
+                return BadResponse("Invalid permissions");
+
+            _context.Tasks.Remove(task);
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Cannot delete task.");
+
+            return OkResponse("Task deleted successfully.");
+        }
     }
 }

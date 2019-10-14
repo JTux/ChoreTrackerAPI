@@ -22,9 +22,7 @@ namespace ChoreTracker.WebAPI.Controllers
                 return BadRequest(ModelState);
 
             var service = GetTaskService();
-
             var createResponse = service.CreateTask(model);
-
             return ValidateRequestResponse(createResponse);
         }
 
@@ -57,10 +55,17 @@ namespace ChoreTracker.WebAPI.Controllers
                 return BadRequest("Task ID mismatch.");
 
             var service = GetTaskService();
-
             var updateResponse = service.UpdateTask(model);
-
             return ValidateRequestResponse(updateResponse);
+        }
+
+        [HttpDelete]
+        [Route("{id}")]
+        public IHttpActionResult DeleteTask(int id)
+        {
+            var service = GetTaskService();
+            var deleteResponse = service.DeleteTaskByID(id);
+            return ValidateRequestResponse(deleteResponse);
         }
     }
 }
