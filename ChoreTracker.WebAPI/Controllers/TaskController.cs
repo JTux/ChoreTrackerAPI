@@ -43,8 +43,24 @@ namespace ChoreTracker.WebAPI.Controllers
         {
             var service = GetTaskService();
             var response = service.GetTaskByID(id);
-
             return ValidateModelRequestResponse<TaskDetail>(response);
+        }
+
+        [HttpPut]
+        [Route("{id}")]
+        public IHttpActionResult UpdateTask(int id, TaskUpdate model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (id != model.TaskId)
+                return BadRequest("Task ID mismatch.");
+
+            var service = GetTaskService();
+
+            var updateResponse = service.UpdateTask(model);
+
+            return ValidateRequestResponse(updateResponse);
         }
     }
 }

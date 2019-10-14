@@ -65,6 +65,7 @@
     <Compile Include="ResponseModels\RequestResponse.cs" />
     <Compile Include="TaskModels\TaskCreate.cs" />
     <Compile Include="TaskModels\TaskDetail.cs" />
+    <Compile Include="TaskModels\TaskUpdate.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

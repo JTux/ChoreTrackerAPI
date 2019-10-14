@@ -44,6 +44,23 @@ namespace ChoreTracker.Services
             return tasks;
         }
 
+        public RequestResponse GetTaskByID(int taskId)
+        {
+            var task = _context.Tasks.FirstOrDefault(t => t.TaskId == taskId);
+            if (task == null)
+                return BadResponse("Invalid task ID");
+
+            var userMembership =
+                task.Group.GroupMembers.FirstOrDefault(gm => gm.GroupId == task.GroupId && gm.UserId == _userId.ToString());
+
+            if (userMembership == null)
+                return BadResponse("Invalid permissions");
+
+            var model = new TaskDetail(task.TaskId, task.TaskName, task.Description, task.CreatedUtc, task.IsComplete, task.RewardValue, task.GroupId);
+
+            return OkModelResponse("Task found.", model);
+        }
+
         public RequestResponse CreateTask(TaskCreate model)
         {
             var userMembership =
@@ -69,21 +86,25 @@ namespace ChoreTracker.Services
             return OkResponse("Task created successfully.");
         }
 
-        public RequestResponse GetTaskByID(int taskId)
+        public RequestResponse UpdateTask(TaskUpdate model)
         {
-            var task = _context.Tasks.FirstOrDefault(t => t.TaskId == taskId);
-            if (task == null)
-                return BadResponse("Invalid task ID");
+            var taskEntity = _context.Tasks.Find(model.TaskId);
+            if (taskEntity == null)
+                return BadResponse("Invalid task ID.");
 
-            var userMembership =
-                task.Group.GroupMembers.FirstOrDefault(gm => gm.GroupId == task.GroupId && gm.UserId == _userId.ToString());
+            if (!taskEntity.Group.GroupMembers.FirstOrDefault(m => m.UserId == _userId.ToString()).IsOfficer)
+                return BadResponse("Invalid permissions.");
 
-            if (userMembership == null)
-                return BadResponse("Invalid permissions");
+            taskEntity.TaskName = model.TaskName;
+            taskEntity.Description = model.Description;
+            taskEntity.GroupId = model.GroupId;
+            taskEntity.IsComplete = model.IsComplete;
+            taskEntity.RewardValue = model.RewardValue;
 
-            var model = new TaskDetail(task.TaskId, task.TaskName, task.Description, task.CreatedUtc, task.IsComplete, task.RewardValue, task.GroupId);
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Cannot save changes.");
 
-            return OkModelResponse("Task found.", model);
+            return OkResponse("Task updated");
         }
     }
 }

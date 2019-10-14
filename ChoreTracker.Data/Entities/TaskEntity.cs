@@ -27,7 +27,7 @@ namespace ChoreTracker.Data.Entities
         public bool IsComplete { get; set; }
 
         [Required]
-        [Range(0, 9000.01, ErrorMessage = "Value must be between 0 and 9000.01.")]
+        [Range(0, 9000.01)]
         public double RewardValue { get; set; }
 
         [ForeignKey(nameof(Group))]
