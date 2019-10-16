@@ -7,8 +7,11 @@ using System.Threading.Tasks;
 
 namespace ChoreTracker.Models.TaskModels
 {
-    public class TaskCreate
+    public class TaskUpdate
     {
+        [Required]
+        public int TaskId { get; set; }
+
         [Required]
         public int GroupId { get; set; }
 

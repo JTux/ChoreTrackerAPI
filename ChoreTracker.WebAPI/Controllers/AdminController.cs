@@ -19,7 +19,7 @@ namespace ChoreTracker.WebAPI.Controllers
 {
     [Authorize(Roles = "Admin")]
     [RoutePrefix("api/Admin")]
-    public class AdminController : ApiController
+    public class AdminController : BaseController
     {
         [HttpPost]
         [Route("Register")]

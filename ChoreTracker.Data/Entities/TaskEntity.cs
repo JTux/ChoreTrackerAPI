@@ -23,15 +23,13 @@ namespace ChoreTracker.Data.Entities
         public DateTimeOffset CreatedUtc { get; set; }
 
         [Required]
-        [DefaultValue(false)]
-        public bool IsComplete { get; set; }
-
-        [Required]
-        [Range(0, 9000.01, ErrorMessage = "Value must be between 0 and 9000.01.")]
+        [Range(0, 9000.01)]
         public double RewardValue { get; set; }
 
         [ForeignKey(nameof(Group))]
         public int GroupId { get; set; }
         public virtual GroupEntity Group { get; set; }
+
+        public virtual ICollection<CompletedTaskEntity> Completions { get; set; }
     }
 }
