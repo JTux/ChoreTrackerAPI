@@ -18,7 +18,6 @@ namespace ChoreTracker.WebAPI.Controllers
     public class GroupController : BaseController
     {
         //-- General Group Endpoints
-
         [HttpGet]
         public IHttpActionResult GetAvailableGroups()
         {
@@ -34,9 +33,7 @@ namespace ChoreTracker.WebAPI.Controllers
                 return BadRequest(ModelState);
 
             var service = GetGroupService();
-
             var requestResponse = service.CreateGroup(model);
-
             return ValidateRequestResponse(requestResponse);
         }
 
@@ -45,9 +42,7 @@ namespace ChoreTracker.WebAPI.Controllers
         public IHttpActionResult GetGroupInfo(int id)
         {
             var service = GetGroupService();
-
             var groupResponse = service.GetGroupById(id);
-
             return ValidateModelRequestResponse<GroupDetail>(groupResponse);
         }
 
@@ -56,9 +51,7 @@ namespace ChoreTracker.WebAPI.Controllers
         public IHttpActionResult UpdateGroupInviteKey(int id)
         {
             var service = GetGroupService();
-
             var updateResponse = service.UpdateGroupInviteCode(id);
-
             return ValidateRequestResponse(updateResponse);
         }
 
@@ -67,9 +60,7 @@ namespace ChoreTracker.WebAPI.Controllers
         public IHttpActionResult JoinGroupAsMember(string key)
         {
             var service = GetGroupService();
-
             var groupJoinResponse = service.JoinGroup(key);
-
             return ValidateRequestResponse(groupJoinResponse);
         }
 
@@ -78,22 +69,17 @@ namespace ChoreTracker.WebAPI.Controllers
         public IHttpActionResult LeaveGroup(int id)
         {
             var service = GetGroupService();
-
             var leaveResponse = service.LeaveGroup(id);
-
             return ValidateRequestResponse(leaveResponse);
         }
 
         //-- Member Endpoints
-
         [HttpGet]
         [Route("M/{id}")]
         public IHttpActionResult GetMemberDetails(int id)
         {
             var service = GetMemberService();
-
             var memberDetail = service.GetMemberDetail(id);
-
             return ValidateModelRequestResponse<GroupMemberDetail>(memberDetail);
         }
 
@@ -102,9 +88,7 @@ namespace ChoreTracker.WebAPI.Controllers
         public IHttpActionResult AcceptApplicant(int id)
         {
             var service = GetMemberService();
-
             var applicantAcceptResponse = service.AcceptApplicant(id);
-
             return ValidateRequestResponse(applicantAcceptResponse);
         }
 
@@ -113,9 +97,7 @@ namespace ChoreTracker.WebAPI.Controllers
         public IHttpActionResult DeclineApplicant(int id)
         {
             var service = GetMemberService();
-
             var applicantDeclineResponse = service.DeclineApplicant(id);
-
             return ValidateRequestResponse(applicantDeclineResponse);
         }
 
@@ -124,9 +106,7 @@ namespace ChoreTracker.WebAPI.Controllers
         public IHttpActionResult RemoveMember(int id)
         {
             var service = GetMemberService();
-
             var removalResponse = service.RemoveMember(id);
-
             return ValidateRequestResponse(removalResponse);
         }
 
@@ -141,9 +121,7 @@ namespace ChoreTracker.WebAPI.Controllers
                 return BadRequest("Group ID Mismatch.");
 
             var service = GetMemberService();
-
             var updateResponse = service.UpdateNickname(model);
-
             return ValidateRequestResponse(updateResponse);
         }
 
@@ -152,9 +130,7 @@ namespace ChoreTracker.WebAPI.Controllers
         public IHttpActionResult ToggleOfficer(int id)
         {
             var service = GetMemberService();
-
             var response = service.ToggleOfficer(id);
-
             return ValidateRequestResponse(response);
         }
     }

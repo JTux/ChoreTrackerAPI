@@ -25,8 +25,5 @@ namespace ChoreTracker.Models.TaskModels
         [Display(Name = "Reward Value")]
         [Range(0, 9000.01, ErrorMessage = "{0} must be between {1} and {2}.")]
         public double RewardValue { get; set; }
-
-        [Required]
-        public bool IsComplete { get; set; }
     }
 }

@@ -23,10 +23,6 @@ namespace ChoreTracker.Data.Entities
         public DateTimeOffset CreatedUtc { get; set; }
 
         [Required]
-        [DefaultValue(false)]
-        public bool IsComplete { get; set; }
-
-        [Required]
         [Range(0, 9000.01)]
         public double RewardValue { get; set; }
 

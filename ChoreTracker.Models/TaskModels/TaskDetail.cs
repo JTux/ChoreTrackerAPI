@@ -10,6 +10,7 @@ namespace ChoreTracker.Models.TaskModels
     public class TaskDetail
     {
         public TaskDetail() { }
+
         public TaskDetail(int taskId, string taskName, string description, DateTimeOffset createdUtc, bool isComplete, double rewardValue, int groupId)
         {
             TaskId = taskId;

@@ -12,6 +12,7 @@ using System.Web.Http;
 
 namespace ChoreTracker.WebAPI.Controllers
 {
+    [Authorize]
     [RoutePrefix("api/Task")]
     public class TaskController : BaseController
     {
@@ -59,6 +60,15 @@ namespace ChoreTracker.WebAPI.Controllers
             return ValidateRequestResponse(updateResponse);
         }
 
+        [HttpDelete]
+        [Route("{id}")]
+        public IHttpActionResult DeleteTask(int id)
+        {
+            var service = GetTaskService();
+            var deleteResponse = service.DeleteTaskByID(id);
+            return ValidateRequestResponse(deleteResponse);
+        }
+
         [HttpPut]
         [Route("{id}/Complete")]
         public IHttpActionResult CompleteTask(int id)
@@ -75,15 +85,6 @@ namespace ChoreTracker.WebAPI.Controllers
             var service = GetTaskService();
             var validationResponse = service.ValidateCompletedTask(id);
             return ValidateRequestResponse(validationResponse);
-        }
-
-        [HttpDelete]
-        [Route("{id}")]
-        public IHttpActionResult DeleteTask(int id)
-        {
-            var service = GetTaskService();
-            var deleteResponse = service.DeleteTaskByID(id);
-            return ValidateRequestResponse(deleteResponse);
         }
     }
 }

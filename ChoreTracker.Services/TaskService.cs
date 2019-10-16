@@ -36,7 +36,7 @@ namespace ChoreTracker.Services
                         TaskName = t.TaskName,
                         Description = t.Description,
                         RewardValue = t.RewardValue,
-                        IsComplete = t.IsComplete,
+                        IsComplete = t.Completions.Where(c => c.IsValid == true).Count() > 0,
                         GroupId = t.GroupId,
                         GroupName = t.Group.GroupName,
                         CreatedUtc = t.CreatedUtc,
@@ -58,9 +58,12 @@ namespace ChoreTracker.Services
             if (userMembership == null)
                 return BadResponse("Invalid permissions");
 
-            var model = new TaskDetail(task.TaskId, task.TaskName, task.Description, task.CreatedUtc, task.IsComplete, task.RewardValue, task.GroupId);
+            var isComplete = task.Completions.Where(c => c.IsValid == true).Count() > 0;
 
-            model.Completions = task.Completions.ToDetailList();
+            var model = new TaskDetail(task.TaskId, task.TaskName, task.Description, task.CreatedUtc, isComplete, task.RewardValue, task.GroupId)
+            {
+                Completions = task.Completions.ToDetailList()
+            };
 
             return OkModelResponse("Task found.", model);
         }
@@ -102,7 +105,6 @@ namespace ChoreTracker.Services
             taskEntity.TaskName = model.TaskName;
             taskEntity.Description = model.Description;
             taskEntity.GroupId = model.GroupId;
-            taskEntity.IsComplete = model.IsComplete;
             taskEntity.RewardValue = model.RewardValue;
 
             if (_context.SaveChanges() != 1)
@@ -153,8 +155,7 @@ namespace ChoreTracker.Services
                 return BadResponse("Completed task already marked valid.");
 
             completedTask.IsValid = true;
-            completedTask.Task.IsComplete = true;
-            if (_context.SaveChanges() != 2)
+            if (_context.SaveChanges() != 1)
                 return BadResponse("Cannot save completed task.");
 
             return OkResponse("Completed task validated successfully.");
