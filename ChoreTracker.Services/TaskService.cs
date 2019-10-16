@@ -123,8 +123,8 @@ namespace ChoreTracker.Services
             if (userMembership == null)
                 return BadResponse("Invalid permissions.");
 
-            if (task.Completions.FirstOrDefault(c => c.UserId == _userId.ToString() && c.CompletedUtc.Date == DateTime.Today) != null)
-                return BadResponse("Already completed task today.");
+            if (task.Completions.FirstOrDefault(c => c.UserId == _userId.ToString()) != null)
+                return BadResponse("Already completed this task.");
 
             var completedTaskEntity = new CompletedTaskEntity
             {
