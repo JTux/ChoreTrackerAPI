@@ -25,19 +25,14 @@ namespace ChoreTracker.Services
 
         public IEnumerable<GroupListItem> GetAvailableGroups()
         {
-            var groupsAsMember = _context.GroupMembers.Where(gm => gm.UserId == _userId.ToString()).ToArray();
+            var groupsAsMember = _context.GroupMembers.Where(gm => gm.UserId == _userId.ToString() && gm.IsAccepted).ToArray();
 
             var groups = new List<GroupListItem>();
             foreach (var membership in groupsAsMember)
             {
-                if (!membership.IsAccepted)
-                    continue;
-
                 var members = GetMemberDetailList(membership.Group.GroupMembers.Where(m => m.IsAccepted));
 
-                var applicants = new List<GroupMemberDetail>();
-                if (membership.IsOfficer)
-                    applicants = GetMemberDetailList(membership.Group.GroupMembers.Where(m => !m.IsAccepted));
+                var applicants = (membership.IsOfficer) ? GetMemberDetailList(membership.Group.GroupMembers.Where(m => !m.IsAccepted)) : null;
 
                 var tasks = new TaskService(_userId).GetTasksByGroupID(membership.GroupId).ToList();
 

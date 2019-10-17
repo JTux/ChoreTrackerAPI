@@ -40,7 +40,7 @@ namespace ChoreTracker.Services
                         GroupId = t.GroupId,
                         GroupName = t.Group.GroupName,
                         CreatedUtc = t.CreatedUtc,
-                        Completions = t.Completions.ToDetailList()
+                        Completions = (userMembership.IsOfficer) ? t.Completions.ToDetailList() : null
                     }).ToList();
 
             return tasks;
@@ -155,7 +155,8 @@ namespace ChoreTracker.Services
                 return BadResponse("Completed task already marked valid.");
 
             completedTask.IsValid = true;
-            if (_context.SaveChanges() != 1)
+            userMembership.EarnedPoints += Convert.ToInt32(completedTask.Task.RewardValue);
+            if (_context.SaveChanges() != 2)
                 return BadResponse("Cannot save completed task.");
 
             return OkResponse("Completed task validated successfully.");
