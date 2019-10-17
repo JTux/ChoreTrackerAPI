@@ -60,6 +60,30 @@ namespace ChoreTracker.Services
             return OkModelResponse("Reward found successfully.", rewardDetail);
         }
 
+        public RequestResponse UpdateReward(RewardUpdate model)
+        {
+            if (model == null)
+                return BadResponse("Request Body was empty.");
+
+            var reward = _context.Rewards.Find(model.RewardId);
+            if (reward == null)
+                return BadResponse("Invalid reward ID.");
+
+            var userMembership = reward.Group.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString());
+            if (userMembership == null || !userMembership.IsAccepted)
+                return BadResponse("Invalid permissions.");
+
+            reward.GroupId = model.GroupId;
+            reward.RewardName = model.RewardName;
+            reward.Cost = model.Cost;
+            reward.NumberAvailable = model.NumberAvailable;
+
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Could not save reward changes.");
+
+            return OkResponse("Reward updated successfully.");
+        }
+
         public IEnumerable<RewardDetail> GetRewardsByGroupID(int groupId)
         {
             var userMembership = GetUserMembership(groupId);

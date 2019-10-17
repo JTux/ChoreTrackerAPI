@@ -66,6 +66,7 @@
     <Compile Include="ResponseModels\RequestResponse.cs" />
     <Compile Include="RewardModels\RewardCreate.cs" />
     <Compile Include="RewardModels\RewardDetail.cs" />
+    <Compile Include="RewardModels\RewardUpdate.cs" />
     <Compile Include="TaskModels\TaskCreate.cs" />
     <Compile Include="TaskModels\TaskDetail.cs" />
     <Compile Include="TaskModels\TaskUpdate.cs" />
