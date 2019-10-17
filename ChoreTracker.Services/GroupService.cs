@@ -36,7 +36,9 @@ namespace ChoreTracker.Services
 
                 var tasks = new TaskService(_userId).GetTasksByGroupID(membership.GroupId).ToList();
 
-                groups.Add(new GroupListItem(membership.GroupId, membership.Group.GroupName, membership.Group.GroupInviteCode, membership.MemberNickname, membership.IsOfficer, members, applicants, tasks));
+                var rewards = new RewardService(_userId).GetRewardsByGroupID(membership.GroupId).ToList();
+
+                groups.Add(new GroupListItem(membership.GroupId, membership.Group.GroupName, membership.Group.GroupInviteCode, membership.MemberNickname, membership.IsOfficer, members, applicants, tasks, rewards));
             }
 
             return groups;
@@ -58,8 +60,7 @@ namespace ChoreTracker.Services
 
         public RequestResponse LeaveGroup(int groupId)
         {
-            var groupMember =
-                    _context.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString() && gm.GroupId == groupId);
+            var groupMember = GetUserMembership(groupId);
 
             if (groupMember == null)
                 return BadResponse("Cannot access group.");
@@ -84,7 +85,7 @@ namespace ChoreTracker.Services
 
         public RequestResponse GetGroupById(int groupId)
         {
-            var userMembership = _context.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString() && gm.GroupId == groupId);
+            var userMembership = GetUserMembership(groupId);
             if (userMembership == null || !userMembership.IsAccepted)
                 return BadResponse("Invalid permissions.");
 
@@ -119,7 +120,7 @@ namespace ChoreTracker.Services
 
         public RequestResponse UpdateGroupInviteCode(int groupId)
         {
-            var userMembership = _context.GroupMembers.FirstOrDefault(gm => gm.GroupId == groupId && gm.UserId == _userId.ToString() && gm.IsAccepted);
+            var userMembership = GetUserMembership(groupId);
 
             if (userMembership == null || !userMembership.IsOfficer)
                 return BadResponse("Unable to edit key.");
@@ -159,8 +160,7 @@ namespace ChoreTracker.Services
         /// <returns></returns>
         private bool CheckUserGroupAccess(int groupId)
         {
-            var groupMember =
-                    _context.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString() && gm.GroupId == groupId);
+            var groupMember = GetUserMembership(groupId);
 
             return groupMember != null ? true : false;
         }
@@ -178,6 +178,13 @@ namespace ChoreTracker.Services
             }
 
             return key;
+        }
+        
+        private GroupMemberEntity GetUserMembership(int groupId)
+        {
+            return _context.GroupMembers.FirstOrDefault(gm =>
+                gm.UserId == _userId.ToString() &&
+                gm.GroupId == groupId);
         }
     }
 }

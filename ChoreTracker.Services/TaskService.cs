@@ -23,10 +23,9 @@ namespace ChoreTracker.Services
 
         public IEnumerable<TaskDetail> GetTasksByGroupID(int groupId)
         {
-            var userMembership =
-                _context.GroupMembers.FirstOrDefault(gm => gm.GroupId == groupId && gm.UserId == _userId.ToString() && gm.IsAccepted);
+            var userMembership = GetUserMembership(groupId);
 
-            if (userMembership == null)
+            if (userMembership == null || !userMembership.IsAccepted)
                 return null;
 
             var tasks = userMembership.Group.Tasks.Select(t =>
@@ -70,8 +69,7 @@ namespace ChoreTracker.Services
 
         public RequestResponse CreateTask(TaskCreate model)
         {
-            var userMembership =
-                _context.GroupMembers.FirstOrDefault(gm => gm.GroupId == model.GroupId && gm.UserId == _userId.ToString() && gm.IsAccepted);
+            var userMembership = GetUserMembership(model.GroupId);
 
             if (userMembership == null || !userMembership.IsOfficer)
                 return BadResponse("Invalid permissions.");
@@ -177,6 +175,13 @@ namespace ChoreTracker.Services
                 return BadResponse("Cannot delete task.");
 
             return OkResponse("Task deleted successfully.");
+        }
+
+        private GroupMemberEntity GetUserMembership(int groupId)
+        {
+            return _context.GroupMembers.FirstOrDefault(gm =>
+                gm.UserId == _userId.ToString() &&
+                gm.GroupId == groupId);
         }
     }
 }
