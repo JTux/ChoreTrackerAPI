@@ -124,7 +124,7 @@ namespace ChoreTracker.Services
         {
             var member = _context.GroupMembers.Find(memberId);
 
-            if (member == null)
+            if (member == null || !member.IsAccepted)
                 return BadResponse("Invalid member information.");
 
             if (member.Group.OwnerId != _userId)

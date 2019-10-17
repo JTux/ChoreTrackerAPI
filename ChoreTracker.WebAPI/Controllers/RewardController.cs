@@ -51,6 +51,15 @@ namespace ChoreTracker.WebAPI.Controllers
             return ValidateRequestResponse(requestResponse);
         }
 
+        [HttpDelete]
+        [Route("{id}/Delete")]
+        public IHttpActionResult DeleteReward(int id)
+        {
+            var service = GetRewardService();
+            var requestResponse = service.DeleteReward(id);
+            return ValidateRequestResponse(requestResponse);
+        }
+
         [HttpGet]
         [Route("G/{id}")]
         public IHttpActionResult GetRewardsByGroupID(int id)

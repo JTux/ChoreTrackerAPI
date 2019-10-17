@@ -84,6 +84,23 @@ namespace ChoreTracker.Services
             return OkResponse("Reward updated successfully.");
         }
 
+        public RequestResponse DeleteReward(int rewardId)
+        {
+            var reward = _context.Rewards.Find(rewardId);
+            if (reward == null)
+                return BadResponse("Invalid reward ID.");
+
+            var userMembership = reward.Group.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString());
+            if (userMembership == null || !userMembership.IsOfficer)
+                return BadResponse("Invalid permissions.");
+
+            _context.Rewards.Remove(reward);
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Could not remove reward.");
+
+            return OkResponse("Reward removed successfully.");
+        }
+
         public IEnumerable<RewardDetail> GetRewardsByGroupID(int groupId)
         {
             var userMembership = GetUserMembership(groupId);
