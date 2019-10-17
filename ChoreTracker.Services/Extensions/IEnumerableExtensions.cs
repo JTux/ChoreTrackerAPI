@@ -53,6 +53,11 @@ namespace ChoreTracker.Services.Extensions
             return memberDetails;
         }
 
+        /// <summary>
+        /// Extension method that turns an IEnumerable of CompletedTaskEntity objects into a List of CompletedTaskDetail objects.
+        /// </summary>
+        /// <param name="completedTasks">Collection of CompletedTaskEntities pulled from the DbContext.</param>
+        /// <returns>A converted List of CompletedTaskDetail from the given Entity collection.</returns>
         public static List<CompletedTaskDetail> ToDetailList(this IEnumerable<CompletedTaskEntity> completedTasks)
         {
             var completedTaskDetails = new List<CompletedTaskDetail>();
@@ -63,7 +68,7 @@ namespace ChoreTracker.Services.Extensions
                     CompletedTaskId = task.CompletedTaskId,
                     CompletedUtc = task.CompletedUtc,
                     IsValid = task.IsValid,
-                    UserId = task.UserId,
+                    Member = task.User.UserName,
                     TaskId = task.TaskId,
                 });
 

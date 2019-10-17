@@ -32,5 +32,6 @@ namespace ChoreTracker.WebAPI.Controllers
         protected GroupService GetGroupService() => new GroupService(Guid.Parse(User.Identity.GetUserId()));
         protected GroupMemberService GetMemberService() => new GroupMemberService(Guid.Parse(User.Identity.GetUserId()));
         protected TaskService GetTaskService() => new TaskService(Guid.Parse(User.Identity.GetUserId()));
+        protected RewardService GetRewardService() => new RewardService(Guid.Parse(User.Identity.GetUserId()));
     }
 }

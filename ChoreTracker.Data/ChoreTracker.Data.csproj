@@ -57,15 +57,12 @@
     <Compile Include="Entities\CompletedTaskEntity.cs" />
     <Compile Include="Entities\GroupEntity.cs" />
     <Compile Include="Entities\GroupMemberEntity.cs" />
+    <Compile Include="Entities\RewardEntity.cs" />
     <Compile Include="Entities\TaskEntity.cs" />
     <Compile Include="IdentityModels.cs" />
-    <Compile Include="Migrations\201910131503185_GroupsAndTasks.cs" />
-    <Compile Include="Migrations\201910131503185_GroupsAndTasks.Designer.cs">
-      <DependentUpon>201910131503185_GroupsAndTasks.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201910141735084_AddedCompletedTasks.cs" />
-    <Compile Include="Migrations\201910141735084_AddedCompletedTasks.Designer.cs">
-      <DependentUpon>201910141735084_AddedCompletedTasks.cs</DependentUpon>
+    <Compile Include="Migrations\201910171820324_InitialMigration.cs" />
+    <Compile Include="Migrations\201910171820324_InitialMigration.Designer.cs">
+      <DependentUpon>201910171820324_InitialMigration.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -75,11 +72,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201910131503185_GroupsAndTasks.resx">
-      <DependentUpon>201910131503185_GroupsAndTasks.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201910141735084_AddedCompletedTasks.resx">
-      <DependentUpon>201910141735084_AddedCompletedTasks.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201910171820324_InitialMigration.resx">
+      <DependentUpon>201910171820324_InitialMigration.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

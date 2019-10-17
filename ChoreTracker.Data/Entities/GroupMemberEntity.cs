@@ -25,7 +25,6 @@ namespace ChoreTracker.Data.Entities
             MemberNickname = nickname;
         }
 
-
         [Key]
         public int GroupMemberId { get; set; }
 
@@ -38,6 +37,9 @@ namespace ChoreTracker.Data.Entities
         public bool IsOfficer { get; set; }
 
         public string MemberNickname { get; set; }
+
+        [Range(0, int.MaxValue)]
+        public int EarnedPoints { get; set; }
 
         [ForeignKey(nameof(User))]
         public string UserId { get; set; }

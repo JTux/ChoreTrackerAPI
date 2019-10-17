@@ -11,7 +11,7 @@ namespace ChoreTracker.Models.CompletedTaskModels
         public int CompletedTaskId { get; set; }
         public DateTimeOffset CompletedUtc { get; set; }
         public bool IsValid { get; set; }
-        public string UserId { get; set; }
+        public string Member { get; set; }
         public int TaskId { get; set; }
     }
 }

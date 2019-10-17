@@ -7,13 +7,13 @@ namespace ChoreTracker.Data.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.0-30225")]
-    public sealed partial class AddedCompletedTasks : IMigrationMetadata
+    public sealed partial class InitialMigration : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddedCompletedTasks));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(InitialMigration));
         
         string IMigrationMetadata.Id
         {
-            get { return "201910141735084_AddedCompletedTasks"; }
+            get { return "201910171820324_InitialMigration"; }
         }
         
         string IMigrationMetadata.Source

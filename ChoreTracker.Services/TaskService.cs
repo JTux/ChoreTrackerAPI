@@ -23,10 +23,9 @@ namespace ChoreTracker.Services
 
         public IEnumerable<TaskDetail> GetTasksByGroupID(int groupId)
         {
-            var userMembership =
-                _context.GroupMembers.FirstOrDefault(gm => gm.GroupId == groupId && gm.UserId == _userId.ToString() && gm.IsAccepted);
+            var userMembership = GetUserMembership(groupId);
 
-            if (userMembership == null)
+            if (userMembership == null || !userMembership.IsAccepted)
                 return null;
 
             var tasks = userMembership.Group.Tasks.Select(t =>
@@ -40,7 +39,7 @@ namespace ChoreTracker.Services
                         GroupId = t.GroupId,
                         GroupName = t.Group.GroupName,
                         CreatedUtc = t.CreatedUtc,
-                        Completions = t.Completions.ToDetailList()
+                        Completions = (userMembership.IsOfficer) ? t.Completions.ToDetailList() : null
                     }).ToList();
 
             return tasks;
@@ -70,8 +69,7 @@ namespace ChoreTracker.Services
 
         public RequestResponse CreateTask(TaskCreate model)
         {
-            var userMembership =
-                _context.GroupMembers.FirstOrDefault(gm => gm.GroupId == model.GroupId && gm.UserId == _userId.ToString() && gm.IsAccepted);
+            var userMembership = GetUserMembership(model.GroupId);
 
             if (userMembership == null || !userMembership.IsOfficer)
                 return BadResponse("Invalid permissions.");
@@ -123,8 +121,8 @@ namespace ChoreTracker.Services
             if (userMembership == null)
                 return BadResponse("Invalid permissions.");
 
-            if (task.Completions.FirstOrDefault(c => c.UserId == _userId.ToString() && c.CompletedUtc.Date == DateTime.Today) != null)
-                return BadResponse("Already completed task today.");
+            if (task.Completions.FirstOrDefault(c => c.UserId == _userId.ToString()) != null)
+                return BadResponse("Already completed this task.");
 
             var completedTaskEntity = new CompletedTaskEntity
             {
@@ -155,7 +153,8 @@ namespace ChoreTracker.Services
                 return BadResponse("Completed task already marked valid.");
 
             completedTask.IsValid = true;
-            if (_context.SaveChanges() != 1)
+            userMembership.EarnedPoints += Convert.ToInt32(completedTask.Task.RewardValue);
+            if (_context.SaveChanges() != 2)
                 return BadResponse("Cannot save completed task.");
 
             return OkResponse("Completed task validated successfully.");
@@ -176,6 +175,13 @@ namespace ChoreTracker.Services
                 return BadResponse("Cannot delete task.");
 
             return OkResponse("Task deleted successfully.");
+        }
+
+        private GroupMemberEntity GetUserMembership(int groupId)
+        {
+            return _context.GroupMembers.FirstOrDefault(gm =>
+                gm.UserId == _userId.ToString() &&
+                gm.GroupId == groupId);
         }
     }
 }

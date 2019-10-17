@@ -34,5 +34,6 @@ namespace ChoreTracker.Data.Entities
 
         public virtual ICollection<GroupMemberEntity> GroupMembers { get; set; }
         public virtual ICollection<TaskEntity> Tasks { get; set; }
+        public virtual ICollection<RewardEntity> Rewards { get; set; }
     }
 }
