@@ -102,6 +102,9 @@ namespace ChoreTracker.Services
 
         public RequestResponse CreateGroup(GroupCreate model)
         {
+            if (model == null)
+                return BadResponse("Request Body was empty.");
+
             var groupEntity = new GroupEntity(model.GroupName, _userId, GetNewRandomKey(8));
 
             _context.Groups.Add(groupEntity);

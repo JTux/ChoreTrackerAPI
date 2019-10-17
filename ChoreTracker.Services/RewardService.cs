@@ -22,6 +22,9 @@ namespace ChoreTracker.Services
 
         public RequestResponse CreateReward(RewardCreate model)
         {
+            if (model == null)
+                return BadResponse("Request Body was empty.");
+
             var userMembership = GetUserMembership(model.GroupId);
             if (userMembership == null || !userMembership.IsOfficer)
                 return BadResponse("Invalid permissions.");

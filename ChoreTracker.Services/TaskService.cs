@@ -69,6 +69,9 @@ namespace ChoreTracker.Services
 
         public RequestResponse CreateTask(TaskCreate model)
         {
+            if (model == null)
+                return BadResponse("Request Body was empty.");
+
             var userMembership = GetUserMembership(model.GroupId);
 
             if (userMembership == null || !userMembership.IsOfficer)
@@ -93,6 +96,9 @@ namespace ChoreTracker.Services
 
         public RequestResponse UpdateTask(TaskUpdate model)
         {
+            if (model == null)
+                return BadResponse("Request Body was empty.");
+
             var taskEntity = _context.Tasks.Find(model.TaskId);
             if (taskEntity == null)
                 return BadResponse("Invalid task ID.");

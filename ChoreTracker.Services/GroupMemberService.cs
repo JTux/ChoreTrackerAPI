@@ -102,6 +102,9 @@ namespace ChoreTracker.Services
 
         public RequestResponse UpdateNickname(MemberNicknameUpdate model)
         {
+            if (model == null)
+                return BadResponse("Request Body was empty.");
+
             var member = _context.GroupMembers.FirstOrDefault(gm => gm.GroupMemberId == model.GroupMemberId);
 
             if (member == null)
@@ -132,6 +135,9 @@ namespace ChoreTracker.Services
 
         private RequestResponse PromoteOfficer(GroupMemberEntity member)
         {
+            if (member == null)
+                return BadResponse("Request Body was empty.");
+
             member.IsOfficer = true;
 
             if (_context.SaveChanges() != 1)
@@ -142,6 +148,9 @@ namespace ChoreTracker.Services
 
         private RequestResponse DemoteOfficer(GroupMemberEntity member)
         {
+            if (member == null)
+                return BadResponse("Request Body was empty.");
+
             if (member.UserId == _userId.ToString())
                 return BadResponse("Cannot demote yourself.");
 
