@@ -23,8 +23,8 @@ namespace ChoreTracker.Data.Entities
         public DateTimeOffset CreatedUtc { get; set; }
 
         [Required]
-        [Range(0, 9000.01)]
-        public double RewardValue { get; set; }
+        [Range(0, int.MaxValue)]
+        public int RewardValue { get; set; }
 
         [ForeignKey(nameof(Group))]
         public int GroupId { get; set; }

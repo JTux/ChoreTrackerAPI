@@ -9,24 +9,29 @@ using System.Threading.Tasks;
 
 namespace ChoreTracker.Data.Entities
 {
-    public class CompletedTaskEntity
+    public class ClaimedRewardEntity
     {
         [Key]
-        public int CompletedTaskId { get; set; }
+        public int ClaimedRewardId { get; set; }
 
         [Required]
-        public DateTimeOffset CompletedUtc { get; set; }
+        [DataType(DataType.DateTime)]
+        public DateTimeOffset ClaimedUtc { get; set; }
+
+        [Required]
+        [Range(0, int.MaxValue)]
+        public int Count { get; set; }
 
         [Required]
         [DefaultValue(false)]
-        public bool IsValid { get; set; }
-
-        [ForeignKey(nameof(Task))]
-        public int TaskId { get; set; }
-        public virtual TaskEntity Task { get; set; }
+        public bool Awarded { get; set; }
 
         [ForeignKey(nameof(GroupMember))]
         public int GroupMemberId { get; set; }
         public virtual GroupMemberEntity GroupMember { get; set; }
+
+        [ForeignKey(nameof(Reward))]
+        public int RewardId { get; set; }
+        public virtual RewardEntity Reward { get; set; }
     }
 }

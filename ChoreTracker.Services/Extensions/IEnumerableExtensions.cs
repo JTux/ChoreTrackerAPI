@@ -68,7 +68,7 @@ namespace ChoreTracker.Services.Extensions
                     CompletedTaskId = task.CompletedTaskId,
                     CompletedUtc = task.CompletedUtc,
                     IsValid = task.IsValid,
-                    Member = task.User.UserName,
+                    Member = task.GroupMember.User.UserName,
                     TaskId = task.TaskId,
                 });
 

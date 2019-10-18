@@ -54,15 +54,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\ClaimedRewardEntity.cs" />
     <Compile Include="Entities\CompletedTaskEntity.cs" />
     <Compile Include="Entities\GroupEntity.cs" />
     <Compile Include="Entities\GroupMemberEntity.cs" />
     <Compile Include="Entities\RewardEntity.cs" />
     <Compile Include="Entities\TaskEntity.cs" />
     <Compile Include="IdentityModels.cs" />
-    <Compile Include="Migrations\201910171820324_InitialMigration.cs" />
-    <Compile Include="Migrations\201910171820324_InitialMigration.Designer.cs">
-      <DependentUpon>201910171820324_InitialMigration.cs</DependentUpon>
+    <Compile Include="Migrations\201910172058441_InitialMigration.cs" />
+    <Compile Include="Migrations\201910172058441_InitialMigration.Designer.cs">
+      <DependentUpon>201910172058441_InitialMigration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201910181742279_AddedClaimedReward.cs" />
+    <Compile Include="Migrations\201910181742279_AddedClaimedReward.Designer.cs">
+      <DependentUpon>201910181742279_AddedClaimedReward.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -72,8 +77,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201910171820324_InitialMigration.resx">
-      <DependentUpon>201910171820324_InitialMigration.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201910172058441_InitialMigration.resx">
+      <DependentUpon>201910172058441_InitialMigration.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201910181742279_AddedClaimedReward.resx">
+      <DependentUpon>201910181742279_AddedClaimedReward.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
