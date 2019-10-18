@@ -22,6 +22,9 @@ namespace ChoreTracker.Services
 
         public RequestResponse CreateReward(RewardCreate model)
         {
+            if (model == null)
+                return BadResponse("Request Body was empty.");
+
             var userMembership = GetUserMembership(model.GroupId);
             if (userMembership == null || !userMembership.IsOfficer)
                 return BadResponse("Invalid permissions.");
@@ -57,6 +60,47 @@ namespace ChoreTracker.Services
             return OkModelResponse("Reward found successfully.", rewardDetail);
         }
 
+        public RequestResponse UpdateReward(RewardUpdate model)
+        {
+            if (model == null)
+                return BadResponse("Request Body was empty.");
+
+            var reward = _context.Rewards.Find(model.RewardId);
+            if (reward == null)
+                return BadResponse("Invalid reward ID.");
+
+            var userMembership = reward.Group.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString());
+            if (userMembership == null || !userMembership.IsAccepted)
+                return BadResponse("Invalid permissions.");
+
+            reward.GroupId = model.GroupId;
+            reward.RewardName = model.RewardName;
+            reward.Cost = model.Cost;
+            reward.NumberAvailable = model.NumberAvailable;
+
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Could not save reward changes.");
+
+            return OkResponse("Reward updated successfully.");
+        }
+
+        public RequestResponse DeleteReward(int rewardId)
+        {
+            var reward = _context.Rewards.Find(rewardId);
+            if (reward == null)
+                return BadResponse("Invalid reward ID.");
+
+            var userMembership = reward.Group.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString());
+            if (userMembership == null || !userMembership.IsOfficer)
+                return BadResponse("Invalid permissions.");
+
+            _context.Rewards.Remove(reward);
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Could not remove reward.");
+
+            return OkResponse("Reward removed successfully.");
+        }
+
         public IEnumerable<RewardDetail> GetRewardsByGroupID(int groupId)
         {
             var userMembership = GetUserMembership(groupId);
@@ -74,6 +118,66 @@ namespace ChoreTracker.Services
                 }).ToList();
 
             return rewards;
+        }
+
+        public RequestResponse ClaimReward(RewardClaim model)
+        {
+            if (model == null)
+                return BadResponse("Request body was empty.");
+
+            var reward = _context.Rewards.Find(model.RewardId);
+            if (reward == null)
+                return BadResponse("Invalid Reward ID.");
+
+            var userMembership = reward.Group.GroupMembers.FirstOrDefault(gm => gm.UserId == _userId.ToString());
+            if (userMembership == null || !userMembership.IsAccepted)
+                return BadResponse("Invalid permissions.");
+
+            var totalCost = reward.Cost * model.Count;
+
+            if (userMembership.EarnedPoints < totalCost)
+                return BadResponse($"Not enough points earned. Member has {userMembership.EarnedPoints}/{totalCost} required points.");
+
+            var claimedReward = new ClaimedRewardEntity
+            {
+                GroupMemberId = userMembership.GroupMemberId,
+                Awarded = false,
+                ClaimedUtc = DateTimeOffset.Now,
+                Count = model.Count,
+                RewardId = model.RewardId
+            };
+
+            _context.ClaimedRewards.Add(claimedReward);
+            userMembership.EarnedPoints -= totalCost;
+            if (_context.SaveChanges() != 2)
+                return BadResponse("Could not save claimed reward.");
+
+            return OkResponse("Reward claimed successfully.");
+        }
+
+        public RequestResponse UpdateClaimedReward(RewardClaimUpdate model)
+        {
+            if (model == null)
+                return BadResponse("Request body was empty.");
+
+            var claimedReward = _context.ClaimedRewards.Find(model.ClaimedRewardId);
+            if (claimedReward == null)
+                return BadResponse("Invalid ClaimedRewardID.");
+
+            if (claimedReward.GroupMember.UserId != _userId.ToString() || !claimedReward.GroupMember.IsOfficer)
+                return BadResponse("Invalid permissions.");
+
+            var updatedCost = (claimedReward.Count - model.Count) * claimedReward.Reward.Cost;
+            claimedReward.GroupMember.EarnedPoints += updatedCost;
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Cannot update reward count.");
+
+            claimedReward.Count = model.Count;
+
+            if (_context.SaveChanges() != 1)
+                return BadResponse("Cannot update claimed reward.");
+
+            return OkResponse("Claim updated successfully.");
         }
 
         private GroupMemberEntity GetUserMembership(int groupId)

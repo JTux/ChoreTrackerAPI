@@ -13,7 +13,7 @@ namespace ChoreTracker.Data.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201910171820324_InitialMigration"; }
+            get { return "201910172058441_InitialMigration"; }
         }
         
         string IMigrationMetadata.Source

@@ -33,6 +33,51 @@ namespace ChoreTracker.WebAPI.Controllers
             return ValidateModelRequestResponse<RewardDetail>(requestResponse);
         }
 
+        [HttpPut]
+        [Route("{id}/Update")]
+        public IHttpActionResult UpdateReward(int id, RewardUpdate model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (model == null)
+                return BadRequest("Request body was empty.");
+
+            if (id != model.RewardId)
+                return BadRequest("Reward ID mismatch.");
+
+            var service = GetRewardService();
+            var requestResponse = service.UpdateReward(model);
+            return ValidateRequestResponse(requestResponse);
+        }
+
+        [HttpDelete]
+        [Route("{id}/Delete")]
+        public IHttpActionResult DeleteReward(int id)
+        {
+            var service = GetRewardService();
+            var requestResponse = service.DeleteReward(id);
+            return ValidateRequestResponse(requestResponse);
+        }
+
+        [HttpPost]
+        [Route("{id}/Claim")]
+        public IHttpActionResult ClaimReward(int id, RewardClaim model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (model == null)
+                return BadRequest("Request body was empty.");
+
+            if (id != model.RewardId)
+                return BadRequest("Reward ID mismatch.");
+
+            var service = GetRewardService();
+            var requestResponse = service.ClaimReward(model);
+            return ValidateRequestResponse(requestResponse);
+        }
+
         [HttpGet]
         [Route("G/{id}")]
         public IHttpActionResult GetRewardsByGroupID(int id)

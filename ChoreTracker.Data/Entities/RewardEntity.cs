@@ -36,5 +36,7 @@ namespace ChoreTracker.Data.Entities
         [ForeignKey(nameof(Group))]
         public int GroupId { get; set; }
         public virtual GroupEntity Group { get; set; }
+
+        public ICollection<ClaimedRewardEntity> Claims { get; set; }
     }
 }

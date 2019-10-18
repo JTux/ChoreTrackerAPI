@@ -69,6 +69,9 @@ namespace ChoreTracker.Services
 
         public RequestResponse CreateTask(TaskCreate model)
         {
+            if (model == null)
+                return BadResponse("Request Body was empty.");
+
             var userMembership = GetUserMembership(model.GroupId);
 
             if (userMembership == null || !userMembership.IsOfficer)
@@ -93,6 +96,9 @@ namespace ChoreTracker.Services
 
         public RequestResponse UpdateTask(TaskUpdate model)
         {
+            if (model == null)
+                return BadResponse("Request Body was empty.");
+
             var taskEntity = _context.Tasks.Find(model.TaskId);
             if (taskEntity == null)
                 return BadResponse("Invalid task ID.");
@@ -121,13 +127,13 @@ namespace ChoreTracker.Services
             if (userMembership == null)
                 return BadResponse("Invalid permissions.");
 
-            if (task.Completions.FirstOrDefault(c => c.UserId == _userId.ToString()) != null)
+            if (task.Completions.FirstOrDefault(c => c.GroupMemberId == userMembership.GroupMemberId) != null)
                 return BadResponse("Already completed this task.");
 
             var completedTaskEntity = new CompletedTaskEntity
             {
                 TaskId = taskId,
-                UserId = _userId.ToString(),
+                GroupMemberId = userMembership.GroupId,
                 IsValid = false,
                 CompletedUtc = DateTimeOffset.Now
             };
